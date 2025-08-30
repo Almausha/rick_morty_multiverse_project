@@ -1,0 +1,12 @@
+{% extends 'universe/base.html' %}
+{% block content %}
+<div class="card p-4 text-center">
+    <h4>Are you sure you want to delete:</h4>
+    <h3>{{ universe.name }}</h3>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="{% url 'universe_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

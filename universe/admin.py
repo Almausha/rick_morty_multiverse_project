@@ -14,3 +14,4 @@ admin.site.register(Marketplace)
 admin.site.register(PortalTimeScheduler)
 admin.site.register(RandomEvent)
 admin.site.register(User)
+

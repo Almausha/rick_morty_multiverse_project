@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Universe Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; }
+        .navbar { background-color: #161b22; }
+        .card { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; color: #c9d1d9; }
+        .btn-portal { background-color: #58a6ff; color: white; }
+        .btn-portal:hover { background-color: #388bfd; }
+        .btn-travel { background-color: #3fb950; color: white; }
+        .btn-travel:hover { background-color: #2ea043; }
+        .status-Safe { color: #28a745; }
+        .status-Destroyed { color: #dc3545; }
+        .status-Unstable { color: #ffc107; }
+        .status-Unknown { color: #6c757d; }
+        .danger-Low { color: #17a2b8; }
+        .danger-Medium { color: #ff9800; }
+        .danger-High { color: #dc3545; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'universe_dashboard' %}"><i class="fas fa-rocket me-2"></i>Universe Vault</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'universe_dashboard' %}">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'universe_list' %}">All Universes</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'universe_create' %}">Add Universe</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

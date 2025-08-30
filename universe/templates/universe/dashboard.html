@@ -1,0 +1,56 @@
+{% extends 'universe/base.html' %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card p-3 text-center">
+            <h5>Safe Universes</h5>
+            <h3 class="status-Safe">{{ safe_universes }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 text-center">
+            <h5>Destroyed Universes</h5>
+            <h3 class="status-Destroyed">{{ destroyed_universes }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 text-center">
+            <h5>High Danger</h5>
+            <h3 class="danger-High">{{ high_danger_universes }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 text-center">
+            <h5>Travel Safe</h5>
+            <h3 class="status-Safe">{{ travel_safe_universes }}</h3>
+        </div>
+    </div>
+</div>
+
+<h4>Recent Universes</h4>
+<table class="table table-dark table-hover">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Danger</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in recent_universes %}
+        <tr>
+            <td>{{ u.name }}</td>
+            <td>{{ u.universe_type }}</td>
+            <td class="status-{{ u.status }}">{{ u.status }}</td>
+            <td class="danger-{{ u.get_danger_display }}">{{ u.get_danger_display }}</td>
+            <td>
+                <a href="{% url 'universe_update' u.universe_id %}" class="btn btn-sm btn-outline-light"><i class="fas fa-edit"></i></a>
+                <a href="{% url 'universe_delete' u.universe_id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

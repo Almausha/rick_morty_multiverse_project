@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'universe',
+    
 ]
 
 MIDDLEWARE = [
@@ -79,16 +80,15 @@ pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': "rick_morty_multiverse_vault",  
-        'USER': 'root',
-        'PASSWORD': '',  # leave blank if no password
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+        'NAME': 'rick_morty_multiverse_vault',  # your imported DB
+        'USER': 'root',                         # MySQL username
+        'PASSWORD': '',                          # MySQL password if any
+        'HOST': '127.0.0.1',                     # or 'localhost'
+        'PORT': '3306',                          # make sure matches your running MySQL port
     }
 }
+
+
 
 
 # Password validation
