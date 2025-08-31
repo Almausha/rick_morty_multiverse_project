@@ -1,0 +1,16 @@
+{% extends "universe/base.html" %}
+
+{% block title %}Add Journey{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4" style="color: #c9d1d9;">Add New Journey</h1>
+
+    <form method="post" class="mb-3">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Create Journey</button>
+        <a href="{% url 'journey_dashboard' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "universe/base.html" %}
+
+{% block title %}Delete Journey{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4" style="color: #c9d1d9;">Delete Journey</h1>
+
+    <p style="color: #c9d1d9;">Are you sure you want to delete this journey for 
+        <strong>{{ journey.user.username }}</strong> to 
+        <strong>{{ journey.universe.name }}</strong> on 
+        <strong>{{ journey.travel_date|date:"Y-m-d H:i" }}</strong>?
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="{% url 'journey_dashboard' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}

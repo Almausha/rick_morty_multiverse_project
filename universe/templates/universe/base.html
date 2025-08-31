@@ -31,6 +31,7 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
+                <!-- Universe Vault Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Universe Vault</a>
                     <ul class="dropdown-menu">
@@ -40,6 +41,7 @@
                     </ul>
                 </li>
 
+                <!-- Travel Scheduler Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Travel Scheduler</a>
                     <ul class="dropdown-menu">
@@ -49,7 +51,13 @@
                     </ul>
                 </li>
 
-                
+                <!-- Journey Logs Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Journey Logs</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'journey_dashboard' %}">Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{% url 'create_journey' %}">Add Journey</a></li>
+                    </ul>
                 </li>
             </ul>
         </div>

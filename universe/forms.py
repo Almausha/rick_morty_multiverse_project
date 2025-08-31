@@ -37,3 +37,17 @@ class PortalTimeSchedulerForm(forms.ModelForm):
             'destination_universe': forms.Select(attrs={'class': 'form-select'}),
         }
 
+
+
+
+from django import forms
+from .models import JourneyLog
+
+class JourneyLogForm(forms.ModelForm):
+    class Meta:
+        model = JourneyLog
+        fields = ['user', 'universe', 'success', 'manual_entry', 'points_awarded']
+
+
+
+

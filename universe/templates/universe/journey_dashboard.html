@@ -1,0 +1,83 @@
+{% extends "universe/base.html" %}
+
+
+
+{% block title %}Journey Dashboard{% endblock %}
+
+{% block content %}
+<div style="padding: 30px; background-color: #f0f2f5; min-height: 100vh;">
+    <h1 style="color: #333; margin-bottom: 20px;">Journey Dashboard</h1>
+
+    <!-- Search Form -->
+    <form method="get" style="margin-bottom: 20px; display:flex; align-items:center; gap:10px;">
+        <input type="text" name="q" placeholder="Search by username" value="{{ request.GET.q }}" 
+               style="padding:8px; border-radius:4px; border:1px solid #ccc; width:220px;">
+        <button type="submit" 
+                style="padding:8px 12px; border:none; border-radius:4px; background-color:#007bff; color:white; cursor:pointer;">
+            Search
+        </button>
+    </form>
+
+    <!-- Most Visited Universe -->
+    {% if most_visited %}
+        <p style="font-weight:bold; margin-bottom:10px;">
+            Most visited universe: 
+            <span style="color:#007bff;">{{ most_visited.universe__name }}</span> 
+            ({{ most_visited.visits }} visits)
+        </p>
+    {% endif %}
+
+    <!-- Recent 3-day counts -->
+    {% if recent_counts %}
+        <h3 style="margin-top:20px; color:#555;">Travel counts in last 3 days:</h3>
+        <ul style="margin-left:20px; margin-bottom:20px;">
+            {% for rc in recent_counts %}
+                <li>{{ rc.user__username }}: {{ rc.travel_count }} travels</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <!-- Journey Logs Table -->
+    <table style="width:100%; border-collapse: collapse; background:white; box-shadow:0 0 10px rgba(0,0,0,0.1); font-family:Arial, sans-serif;">
+        <thead>
+            <tr style="background:#007bff; color:white; text-align:center;">
+                <th style="padding:12px;">User</th>
+                <th style="padding:12px;">Universe</th>
+                <th style="padding:12px;">Date</th>
+                <th style="padding:12px;">Success</th>
+                <th style="padding:12px;">Manual Entry</th>
+                <th style="padding:12px;">Points</th>
+                <th style="padding:12px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr style="text-align:center; border-bottom:1px solid #ddd; {% if forloop.counter|divisibleby:2 %}background:#f9f9f9;{% endif %}">
+                <td>{{ log.user.username|default:"N/A" }}</td>
+                <td>{{ log.universe.name|default:"N/A" }}</td>
+                <td>{{ log.travel_date|date:"Y-m-d H:i" }}</td>
+                <td>
+                    {% if log.success %}
+                        <span style="color:green; font-weight:bold;">Yes</span>
+                    {% else %}
+                        <span style="color:red; font-weight:bold;">No</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <input type="checkbox" disabled {% if log.manual_entry %}checked{% endif %}>
+                </td>
+                <td>{{ log.points_awarded }}</td>
+                <td>
+                    <a href="{% url 'edit_journey' log.id %}" style="color:#007bff; margin-right:8px;">Edit</a>
+                    <a href="{% url 'delete_journey' log.id %}" style="color:red;">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align:center; padding:15px; color:#555;">No journey logs found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

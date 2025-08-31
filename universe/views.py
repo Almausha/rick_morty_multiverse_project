@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import PortalTimeSchedulerForm
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
 
 # Models & Forms
@@ -156,6 +159,79 @@ def scheduler_delete(request, pk):
     return redirect('scheduler_list')
 
 
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import user_passes_test
+from .models import JourneyLog, Universe
+from .forms import JourneyLogForm
+from django.db.models import Count
+from django.utils import timezone
+from datetime import timedelta
+
+def admin_required(user):
+    return user.is_staff
+
+@user_passes_test(admin_required)
+def journey_dashboard(request):
+    logs = JourneyLog.objects.order_by('-travel_date')
+    
+    # Search
+    query = request.GET.get('q')
+    if query:
+        logs = logs.filter(user__username__icontains=query)
+
+    # Most visited universe
+    most_visited = JourneyLog.objects.values('universe__name') \
+                    .annotate(visits=Count('id')) \
+                    .order_by('-visits').first()
+
+    # Recent 3-day reward points
+    three_days_ago = timezone.now() - timedelta(days=3)
+    recent_success = JourneyLog.objects.filter(success=True, travel_date__gte=three_days_ago)
+    recent_counts = recent_success.values('user__username').annotate(travel_count=Count('id'))
+
+    context = {
+        'logs': logs,
+        'most_visited': most_visited,
+        'recent_counts': recent_counts,
+    }
+    return render(request, 'universe/journey/journey_dashboard.html', context)
+
+
+@user_passes_test(admin_required)
+def create_journey(request):
+    if request.method == 'POST':
+        form = JourneyLogForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('journey_dashboard')
+    else:
+        form = JourneyLogForm()
+    return render(request, 'universe/journey/create_journey.html', {'form': form})
+
+
+@user_passes_test(admin_required)
+def edit_journey(request, pk):
+    log = get_object_or_404(JourneyLog, pk=pk)
+    if request.method == 'POST':
+        form = JourneyLogForm(request.POST, instance=log)
+        if form.is_valid():
+            form.save()
+            return redirect('journey_dashboard')
+    else:
+        form = JourneyLogForm(instance=log)
+    return render(request, 'universe/journey/edit_journey.html', {'form': form})
+
+
+@user_passes_test(admin_required)
+def delete_journey(request, pk):
+    log = get_object_or_404(JourneyLog, pk=pk)
+    if request.method == 'POST':
+        log.delete()
+        return redirect('journey_dashboard')
+    return render(request, 'universe/journey/delete_journey.html', {'log': log})
 
 
 

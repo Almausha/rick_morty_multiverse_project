@@ -10,6 +10,7 @@ from django.db.models import F
 
 
 
+
 class Admin(models.Model):
     admin_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -169,22 +170,22 @@ class Booking(models.Model):
 
 
 
-# ---------------- Journey Log ----------------
-class JourneyLog(models.Model):
-    log_id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    travel = models.ForeignKey(PortalTimeScheduler, on_delete=models.SET_NULL, null=True, blank=True)
-    destination = models.CharField(max_length=100)
-    date = models.DateField()
-    status = models.CharField(max_length=20, default='Success')  # Success / Failed
 
-    @property
-    def famous(self):
-        visits = JourneyLog.objects.filter(travel=self.travel, status='Success').count()
-        return visits >= 5
+
+
+
+class JourneyLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    universe = models.ForeignKey('Universe', on_delete=models.SET_NULL, null=True)
+    travel_date = models.DateTimeField(auto_now_add=True)
+    success = models.BooleanField(default=True)
+    manual_entry = models.BooleanField(default=False)
+    points_awarded = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.user.username if self.user else 'No User'} → {self.destination}"
+        return f"{self.user} -> {self.universe} at {self.travel_date}"
+
+
 
 
 
