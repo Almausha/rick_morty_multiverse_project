@@ -1,8 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Universe
-from .forms import UniverseForm, UniverseFilterForm
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .forms import PortalTimeSchedulerForm
 
+
+# Models & Forms
+
+from .forms import UniverseForm, UniverseFilterForm
+
+from .models import Universe, PortalTimeScheduler
+
+# ---------------- Helper ----------------
+def is_admin(user):
+    return user.is_superuser or user.is_staff
+
+# ===================== Universe Vault =====================
 def universe_dashboard(request):
     safe_universes = Universe.objects.filter(status='Safe').count()
     destroyed_universes = Universe.objects.filter(status='Destroyed').count()
@@ -18,8 +30,6 @@ def universe_dashboard(request):
         'recent_universes': recent_universes
     })
 
-
-# List + Filter
 def universe_list(request):
     universes = Universe.objects.all()
     form = UniverseFilterForm(request.GET)
@@ -39,21 +49,18 @@ def universe_list(request):
 
     return render(request, 'universe/universe_list.html', {'universes': universes, 'form': form})
 
-
-# Add / Update
 def universe_create(request):
     if request.method == 'POST':
         form = UniverseForm(request.POST)
         if form.is_valid():
-            universe = form.save(commit=False)  # Don't save yet
-            universe.admin = request.user       # Assign logged-in user
+            universe = form.save(commit=False)
+            universe.admin = request.user
             universe.save()
             messages.success(request, 'Universe added!')
             return redirect('universe_list')
     else:
         form = UniverseForm()
     return render(request, 'universe/universe_form.html', {'form': form})
-
 
 def universe_update(request, pk):
     universe = get_object_or_404(Universe, pk=pk)
@@ -62,7 +69,7 @@ def universe_update(request, pk):
         if form.is_valid():
             universe = form.save(commit=False)
             if not universe.admin:
-                universe.admin = request.user  # Assign if missing
+                universe.admin = request.user
             universe.save()
             messages.success(request, 'Universe updated!')
             return redirect('universe_list')
@@ -70,8 +77,6 @@ def universe_update(request, pk):
         form = UniverseForm(instance=universe)
     return render(request, 'universe/universe_form.html', {'form': form})
 
-
-# Delete
 def universe_delete(request, pk):
     universe = get_object_or_404(Universe, pk=pk)
     if request.method == 'POST':
@@ -79,3 +84,81 @@ def universe_delete(request, pk):
         messages.success(request, 'Universe deleted!')
         return redirect('universe_list')
     return render(request, 'universe/universe_confirm_delete.html', {'universe': universe})
+
+# universe/views.py
+
+from django.shortcuts import render
+from .models import PortalTimeScheduler
+
+# universe/views.py
+from django.shortcuts import render
+from .models import PortalTimeScheduler
+
+def scheduler_dashboard(request):
+    schedules = PortalTimeScheduler.objects.all()
+    
+    total_schedules = schedules.count()
+    total_booked = sum(s.booking_set.filter(canceled=False).count() for s in schedules)
+    total_available = sum(s.max_capacity - s.booking_set.filter(canceled=False).count() for s in schedules)
+    recent_schedules = schedules.order_by('-date')[:5]
+
+    context = {
+        'total_schedules': total_schedules,
+        'total_booked': total_booked,
+        'total_available': total_available,
+        'recent_schedules': recent_schedules,
+    }
+    return render(request, 'universe/scheduler/dashboard.html', context)
+
+
+
+
+
+
+
+# ---------------- List ----------------
+def scheduler_list(request):
+    schedules = PortalTimeScheduler.objects.all().order_by('-date')
+    return render(request, 'universe/scheduler/list.html', {'schedules': schedules})
+
+# ---------------- Create ----------------
+def scheduler_create(request):
+    if request.method == 'POST':
+        form = PortalTimeSchedulerForm(request.POST)
+        if form.is_valid():
+            scheduler = form.save(commit=False)
+            scheduler.admin = request.user
+            scheduler.save()
+            messages.success(request, "Schedule created successfully!")
+            return redirect('scheduler_list')
+    else:
+        form = PortalTimeSchedulerForm()
+    return render(request, 'universe/scheduler/form.html', {'form': form})
+
+# ---------------- Update ----------------
+def scheduler_update(request, pk):
+    schedule = get_object_or_404(PortalTimeScheduler, pk=pk)
+    if request.method == 'POST':
+        form = PortalTimeSchedulerForm(request.POST, instance=schedule)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Schedule updated successfully!")
+            return redirect('scheduler_list')
+    else:
+        form = PortalTimeSchedulerForm(instance=schedule)
+    return render(request, 'universe/scheduler/form.html', {'form': form})
+
+# ---------------- Delete ----------------
+def scheduler_delete(request, pk):
+    schedule = get_object_or_404(PortalTimeScheduler, pk=pk)
+    schedule.delete()
+    messages.success(request, "Schedule deleted successfully!")
+    return redirect('scheduler_list')
+
+
+
+
+
+
+
+

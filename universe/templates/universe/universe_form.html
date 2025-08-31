@@ -1,4 +1,5 @@
-{% extends 'universe/base.html' %}
+{% extends "universe/base.html" %}
+
 {% block content %}
 <h3>{{ form.instance.pk|yesno:"Update Universe,Add New Universe" }}</h3>
 <form method="post">

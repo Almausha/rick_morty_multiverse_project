@@ -1,19 +1,26 @@
 from django.db import models
+from django.utils import timezone
+from django.contrib.auth.models import User  # built-in User for admin & normal users
+from datetime import timedelta
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+from django.db.models import F
+
+
+
 
 class Admin(models.Model):
     admin_id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=10)
-    password = models.CharField(max_length=10)
-    role = models.TextField()
-    email = models.CharField(max_length=50)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    role = models.TextField(blank=True)
+    email = models.CharField(max_length=50, blank=True)
 
     def __str__(self):
-        return self.username
+        return self.user.username if self.user else "No User Assigned"
 
 
-from django.db import models
-from django.contrib.auth.models import User  # ✅ built-in User for admin
-
+# ---------------- Universe ----------------
 class Universe(models.Model):
     STATUS_CHOICES = [
         ('Safe', 'Safe'),
@@ -21,7 +28,6 @@ class Universe(models.Model):
         ('Unstable', 'Unstable'),
         ('Unknown', 'Unknown'),
     ]
-
     UNIVERSE_TYPES = [
         ('Prime', 'Prime'),
         ('Cronenberg', 'Cronenberg'),
@@ -30,7 +36,6 @@ class Universe(models.Model):
         ('Virtual', 'Virtual'),
         ('Unknown', 'Unknown'),
     ]
-
     universe_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=200)
     universe_type = models.CharField(max_length=50, choices=UNIVERSE_TYPES, default='Unknown')
@@ -38,13 +43,8 @@ class Universe(models.Model):
     destroyed_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Unknown')
     visited_intergalactic_beings = models.TextField(blank=True)
-    danger_level = models.IntegerField(
-        default=0,
-        choices=[(0, 'Low'), (1, 'High')]  # ✅ only Low or High
-    )
+    danger_level = models.IntegerField(default=0, choices=[(0,'Low'),(1,'High')])
     description = models.TextField(blank=True)
-
-    # ✅ admin linked to Django's built-in User table
     admin = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True)
 
     class Meta:
@@ -57,10 +57,10 @@ class Universe(models.Model):
         return "Low" if self.danger_level == 0 else "High"
 
     def is_travel_safe(self):
-        return self.status == 'Safe' and self.danger_level == 0
+        return self.status=='Safe' and self.danger_level==0
 
 
-
+# ---------------- Artefact ----------------
 class Artefact(models.Model):
     artefact_id = models.AutoField(primary_key=True)
     name = models.TextField()
@@ -78,6 +78,7 @@ class Artefact(models.Model):
         return self.name
 
 
+# ---------------- Auction ----------------
 class Auction(models.Model):
     auction_id = models.AutoField(primary_key=True)
     starting_bidding_price = models.IntegerField()
@@ -87,6 +88,7 @@ class Auction(models.Model):
         return f"Auction {self.auction_id}"
 
 
+# ---------------- Marketplace ----------------
 class Marketplace(models.Model):
     marketplace_id = models.AutoField(primary_key=True)
     price = models.IntegerField()
@@ -96,52 +98,103 @@ class Marketplace(models.Model):
         return f"Marketplace {self.marketplace_id}"
 
 
+
+
+# universe/models.py
+from django.db import models
+from django.contrib.auth.models import User
+
 class PortalTimeScheduler(models.Model):
     travel_id = models.AutoField(primary_key=True)
-    source = models.TextField()
-    destination = models.TextField()
+    source_universe = models.ForeignKey(
+        'Universe', on_delete=models.SET_NULL, null=True, related_name='source_travel'
+    )
+    destination_universe = models.ForeignKey(
+        'Universe', on_delete=models.SET_NULL, null=True, related_name='destination_travel'
+    )
     date = models.DateField()
-    max_capacity = models.IntegerField()
-    status = models.TextField()
-    a = models.ForeignKey(Admin, on_delete=models.DO_NOTHING)
+    max_capacity = models.IntegerField(default=10)
+    admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"Travel {self.travel_id}"
+        return f"{self.source_universe.name} → {self.destination_universe.name} on {self.date}"
+
+    # --- Helper methods ---
+    def booked_count(self):
+        return self.booking_set.filter(canceled=False).count()
+
+    def available_slots(self):
+        return self.max_capacity - self.booked_count()
+
+    def status(self):
+        if self.available_slots() <= 0:
+            return "Not Available"
+        elif self.booked_count() > 0:
+            return "Booked"
+        else:
+            return "Available"
 
 
+
+# universe/models.py
+
+from django.db import models
+from django.contrib.auth.models import User
+from .models import PortalTimeScheduler
+
+class Booking(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
+    schedule = models.ForeignKey(
+        PortalTimeScheduler,
+        on_delete=models.CASCADE,
+        related_name='booking_set',
+        null=True,  # temporary for existing rows
+        blank=True
+    )
+    canceled = models.BooleanField(default=False)
+    booked_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        # Make sure schedule is not None
+        if self.schedule:
+            # Use its name if it exists, else fallback
+            schedule_name = getattr(self.schedule, 'name', f"Schedule {self.schedule.id}")
+        else:
+            schedule_name = "No Schedule"
+        return f"{self.user.username} → {schedule_name}"
+
+
+
+
+
+
+
+# ---------------- Journey Log ----------------
 class JourneyLog(models.Model):
     log_id = models.AutoField(primary_key=True)
-    destination = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    travel = models.ForeignKey(PortalTimeScheduler, on_delete=models.SET_NULL, null=True, blank=True)
+    destination = models.CharField(max_length=100)
     date = models.DateField()
-    status = models.TextField()
-    a = models.ForeignKey(Admin, on_delete=models.DO_NOTHING)
+    status = models.CharField(max_length=20, default='Success')  # Success / Failed
+
+    @property
+    def famous(self):
+        visits = JourneyLog.objects.filter(travel=self.travel, status='Success').count()
+        return visits >= 5
 
     def __str__(self):
-        return f"Log {self.log_id}"
+        return f"{self.user.username if self.user else 'No User'} → {self.destination}"
 
 
+
+# ---------------- Random Event ----------------
 class RandomEvent(models.Model):
     event_id = models.AutoField(primary_key=True)
     name = models.TextField()
     effect = models.CharField(max_length=50)
     date_triggered = models.DateField()
     a = models.ForeignKey(Artefact, on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return self.name
-
-
-class User(models.Model):
-    user_id = models.AutoField(primary_key=True)
-    name = models.TextField()
-    email = models.CharField(max_length=30)
-    reg_date = models.DateField()
-    address = models.CharField(max_length=30)
-    a = models.ForeignKey(Admin, on_delete=models.DO_NOTHING)
-    u = models.ForeignKey(Universe, on_delete=models.DO_NOTHING)
-    tr = models.ForeignKey(PortalTimeScheduler, on_delete=models.DO_NOTHING)
-    m = models.ForeignKey(Marketplace, on_delete=models.DO_NOTHING)
-    au = models.ForeignKey(Auction, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.name

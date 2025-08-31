@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Universe Management</title>
+    <title>Portal Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -10,9 +10,8 @@
         .navbar { background-color: #161b22; }
         .card { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; color: #c9d1d9; }
         .btn-portal { background-color: #58a6ff; color: white; }
-        .btn-portal:hover { background-color: #388bfd; }
         .btn-travel { background-color: #3fb950; color: white; }
-        .btn-travel:hover { background-color: #2ea043; }
+        .btn-danger { background-color: #dc3545; color: white; }
         .status-Safe { color: #28a745; }
         .status-Destroyed { color: #dc3545; }
         .status-Unstable { color: #ffc107; }
@@ -26,17 +25,38 @@
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container">
         <a class="navbar-brand" href="{% url 'universe_dashboard' %}"><i class="fas fa-rocket me-2"></i>Universe Vault</a>
-        <div class="collapse navbar-collapse">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="{% url 'universe_dashboard' %}">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'universe_list' %}">All Universes</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'universe_create' %}">Add Universe</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Universe Vault</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'universe_dashboard' %}">Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{% url 'universe_list' %}">All Universes</a></li>
+                        <li><a class="dropdown-item" href="{% url 'universe_create' %}">Add Universe</a></li>
+                    </ul>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Travel Scheduler</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'scheduler_dashboard' %}">Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{% url 'scheduler_list' %}">Schedule List</a></li>
+                        <li><a class="dropdown-item" href="{% url 'scheduler_create' %}">Create Schedule</a></li>
+                    </ul>
+                </li>
+
+                
+                </li>
             </ul>
         </div>
     </div>
 </nav>
 
-<div class="container">
+<div class="container mt-3">
     {% if messages %}
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
