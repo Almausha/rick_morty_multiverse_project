@@ -160,23 +160,23 @@ def scheduler_delete(request, pk):
 
 
 
-
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
-from .models import JourneyLog, Universe
-from .forms import JourneyLogForm
 from django.db.models import Count
 from django.utils import timezone
 from datetime import timedelta
 
+from .models import JourneyLog, Universe
+from .forms import JourneyLogForm
+
+# ---------------- Admin check ----------------
 def admin_required(user):
     return user.is_staff
 
 @user_passes_test(admin_required)
 def journey_dashboard(request):
     logs = JourneyLog.objects.order_by('-travel_date')
-    
+
     # Search
     query = request.GET.get('q')
     if query:
@@ -197,43 +197,47 @@ def journey_dashboard(request):
         'most_visited': most_visited,
         'recent_counts': recent_counts,
     }
+
+    # If AJAX request, render only the table body
+    if request.GET.get('ajax'):
+        return render(request, 'universe/journey/journey_table_partial.html', {'logs': logs})
+
     return render(request, 'universe/journey/journey_dashboard.html', context)
 
 
+# ================== Create Journey ==================
 @user_passes_test(admin_required)
 def create_journey(request):
     if request.method == 'POST':
-        form = JourneyLogForm(request.POST)
+        form = JourneyLogForm(request.POST, admin_user=request.user)
         if form.is_valid():
             form.save()
             return redirect('journey_dashboard')
     else:
-        form = JourneyLogForm()
+        form = JourneyLogForm(admin_user=request.user)
     return render(request, 'universe/journey/create_journey.html', {'form': form})
 
-
+# ================== Edit Journey ==================
 @user_passes_test(admin_required)
 def edit_journey(request, pk):
-    log = get_object_or_404(JourneyLog, pk=pk)
+    log = get_object_or_404(JourneyLog, pk=pk, user=request.user)
     if request.method == 'POST':
-        form = JourneyLogForm(request.POST, instance=log)
+        form = JourneyLogForm(request.POST, instance=log, admin_user=request.user)
         if form.is_valid():
             form.save()
             return redirect('journey_dashboard')
     else:
-        form = JourneyLogForm(instance=log)
+        form = JourneyLogForm(instance=log, admin_user=request.user)
     return render(request, 'universe/journey/edit_journey.html', {'form': form})
 
-
+# ================== Delete Journey ==================
 @user_passes_test(admin_required)
 def delete_journey(request, pk):
-    log = get_object_or_404(JourneyLog, pk=pk)
+    log = get_object_or_404(JourneyLog, pk=pk, user=request.user)
     if request.method == 'POST':
         log.delete()
         return redirect('journey_dashboard')
     return render(request, 'universe/journey/delete_journey.html', {'log': log})
-
-
 
 
 

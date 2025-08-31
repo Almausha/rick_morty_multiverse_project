@@ -1,36 +1,32 @@
-{% extends "universe/base.html" %}
-
-{% block title %}Journey Dashboard{% endblock %}
+{% extends 'universe/base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4" style="color: #c9d1d9;">Journey Dashboard</h1>
+<div class="card p-4">
+    <h3>Journey Dashboard</h3>
 
-    <a href="{% url 'create_journey' %}" class="btn btn-success mb-3">Add Journey</a>
-
-    <!-- Search Form -->
-    <form method="get" class="d-flex mb-3">
-        <input type="text" name="q" class="form-control me-2" placeholder="Search by username" value="{{ request.GET.q }}">
-        <button type="submit" class="btn btn-primary">Search</button>
+    <!-- Search form -->
+    <form method="GET" class="mb-3">
+        <input type="text" name="q" placeholder="Search by username" class="form-control" value="{{ request.GET.q }}">
+        <button type="submit" class="btn btn-portal mt-2">Search</button>
     </form>
 
-    <!-- Most Visited Universe -->
+    <!-- Most visited universe -->
     {% if most_visited %}
-        <p style="color:#58a6ff;"><strong>Most visited universe:</strong> {{ most_visited.universe__name }} ({{ most_visited.visits }} visits)</p>
+        <p><strong>Most visited universe:</strong> {{ most_visited.universe__name }} ({{ most_visited.visits }} visits)</p>
     {% endif %}
 
-    <!-- Recent 3-day counts -->
+    <!-- Recent 3-day travel counts -->
     {% if recent_counts %}
-        <h5 style="color:#c9d1d9;">Travel counts in last 3 days:</h5>
-        <ul class="mb-3">
-            {% for rc in recent_counts %}
-                <li>{{ rc.user__username }}: {{ rc.travel_count }} travels</li>
+        <p><strong>Travel counts in last 3 days:</strong></p>
+        <ul>
+            {% for item in recent_counts %}
+                <li>{{ item.user__username }}: {{ item.travel_count }} travels</li>
             {% endfor %}
         </ul>
     {% endif %}
 
-    <!-- Journey Logs Table -->
-    <table class="table table-dark table-hover">
+    <!-- Journey logs table -->
+    <table class="table table-dark table-striped mt-3">
         <thead>
             <tr>
                 <th>User</th>
@@ -45,43 +41,42 @@
         <tbody>
             {% for log in logs %}
             <tr>
-                <td>
-                    {% if log.user %}
-                        {{ log.user.username }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </td>
-                <td>
-                    {% if log.universe %}
-                        {{ log.universe.name }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </td>
+                <td>{{ log.user.username }}</td>
+                <td>{{ log.universe.name }}</td>
                 <td>{{ log.travel_date|date:"Y-m-d H:i" }}</td>
-                <td>
-                    {% if log.success %}
-                        <span class="text-success fw-bold">Yes</span>
-                    {% else %}
-                        <span class="text-danger fw-bold">No</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <input type="checkbox" disabled {% if log.manual_entry %}checked{% endif %}>
-                </td>
+                <td>{{ log.success|yesno:"Yes,No" }}</td>
+                <td>{{ log.manual_entry|yesno:"Yes,No" }}</td>
                 <td>{{ log.points_awarded }}</td>
                 <td>
-                    <a href="{% url 'edit_journey' log.id %}" class="text-primary me-2">Edit</a>
-                    <a href="{% url 'delete_journey' log.id %}" class="text-danger">Delete</a>
+                    <a href="{% url 'edit_journey' log.pk %}" class="btn btn-travel btn-sm">Edit</a>
+                    <a href="{% url 'delete_journey' log.pk %}" class="btn btn-danger btn-sm">Delete</a>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" class="text-center text-muted">No journey logs found.</td>
+                <td colspan="7">No journeys found.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Auto-refresh every 10 seconds -->
+<script>
+    setInterval(function() {
+        fetch("{% url 'journey_dashboard' %}?ajax=1")
+        .then(response => response.text())
+        .then(html => {
+            let tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            let newTbody = tempDiv.querySelector('tbody');
+            let oldTbody = document.querySelector('table tbody');
+            if(newTbody && oldTbody){
+                oldTbody.innerHTML = newTbody.innerHTML;
+            }
+        });
+    }, 10000);
+</script>
 {% endblock %}

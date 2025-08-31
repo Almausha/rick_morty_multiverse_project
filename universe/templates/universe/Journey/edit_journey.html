@@ -1,16 +1,12 @@
-{% extends "universe/base.html" %}
-
-{% block title %}Edit Journey{% endblock %}
-
+{% extends 'universe/base.html' %}
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4" style="color: #c9d1d9;">Edit Journey</h1>
-
-    <form method="post" class="mb-3">
+<div class="card p-4">
+    <h3>Edit Journey</h3>
+    <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-        <a href="{% url 'journey_dashboard' %}" class="btn btn-secondary ms-2">Cancel</a>
+        <button type="submit" class="btn btn-portal mt-2">Update Journey</button>
+        <a href="{% url 'journey_dashboard' %}" class="btn btn-secondary mt-2">Cancel</a>
     </form>
 </div>
 {% endblock %}

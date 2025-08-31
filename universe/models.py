@@ -97,9 +97,29 @@ class Marketplace(models.Model):
 
     def __str__(self):
         return f"Marketplace {self.marketplace_id}"
+    
 
 
 
+  #Random event
+    
+class RandomEvent(models.Model):
+    event_id = models.AutoField(primary_key=True)
+    name = models.TextField()
+    effect = models.CharField(max_length=50)
+    date_triggered = models.DateField()
+    a = models.ForeignKey('Artefact', on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return self.name
+
+
+
+
+
+
+
+#PortalTimeScheduler
 
 # universe/models.py
 from django.db import models
@@ -137,6 +157,14 @@ class PortalTimeScheduler(models.Model):
 
 
 
+
+
+
+#Booking
+
+
+
+
 # universe/models.py
 
 from django.db import models
@@ -169,33 +197,14 @@ class Booking(models.Model):
 
 
 
-
-
-
-
-
+# Journey Log
 class JourneyLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    universe = models.ForeignKey('Universe', on_delete=models.SET_NULL, null=True)
+    universe = models.ForeignKey(Universe, on_delete=models.SET_NULL, null=True)
     travel_date = models.DateTimeField(auto_now_add=True)
+    points_awarded = models.IntegerField(default=0)
     success = models.BooleanField(default=True)
     manual_entry = models.BooleanField(default=False)
-    points_awarded = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.user} -> {self.universe} at {self.travel_date}"
-
-
-
-
-
-# ---------------- Random Event ----------------
-class RandomEvent(models.Model):
-    event_id = models.AutoField(primary_key=True)
-    name = models.TextField()
-    effect = models.CharField(max_length=50)
-    date_triggered = models.DateField()
-    a = models.ForeignKey(Artefact, on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return self.name

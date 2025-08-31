@@ -1,4 +1,8 @@
 from django import forms
+from django.contrib.auth.models import User
+from .models import Universe, PortalTimeScheduler, JourneyLog
+
+from django import forms
 from .models import Universe, PortalTimeScheduler
 import datetime
 
@@ -38,16 +42,24 @@ class PortalTimeSchedulerForm(forms.ModelForm):
         }
 
 
-
-
-from django import forms
-from .models import JourneyLog
-
+# ---------------- JourneyLog form ----------------
 class JourneyLogForm(forms.ModelForm):
     class Meta:
         model = JourneyLog
         fields = ['user', 'universe', 'success', 'manual_entry', 'points_awarded']
+        widgets = {
+            'success': forms.CheckboxInput(),
+            'manual_entry': forms.CheckboxInput(),
+        }
 
+    def __init__(self, *args, **kwargs):
+        admin_user = kwargs.pop('admin_user', None)
+        super().__init__(*args, **kwargs)
 
+        if admin_user:
+            # Only allow the admin to select themselves as user
+            self.fields['user'].queryset = User.objects.filter(id=admin_user.id)
+            self.fields['user'].initial = admin_user
 
-
+            # Filter universes by single admin field
+            self.fields['universe'].queryset = Universe.objects.filter(admin=admin_user)

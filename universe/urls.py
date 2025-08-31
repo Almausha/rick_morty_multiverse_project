@@ -23,6 +23,7 @@ urlpatterns = [
     path('scheduler/<int:pk>/delete/', views.scheduler_delete, name='scheduler_delete'),
     
 
+    # ---------------- Journey Logs ----------------
     path('journey_dashboard/', views.journey_dashboard, name='journey_dashboard'),
     path('journey/create/', views.create_journey, name='create_journey'),
     path('journey/edit/<int:pk>/', views.edit_journey, name='edit_journey'),
