@@ -2,9 +2,13 @@
 
 {% block content %}
 <h2>{% if form.instance.pk %}Update{% else %}Create{% endif %} Schedule</h2>
+
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Save</button>
+    <button type="submit" class="btn btn-travel mt-2">
+        <i class="fas fa-save"></i> Save
+    </button>
+    <a href="{% url 'scheduler_list' %}" class="btn btn-secondary mt-2">Cancel</a>
 </form>
 {% endblock %}

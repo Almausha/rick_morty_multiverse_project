@@ -1,47 +1,82 @@
 {% extends 'universe/base.html' %}
 
 {% block content %}
-<h2>Schedule List</h2>
-<a href="{% url 'scheduler_create' %}" class="btn btn-primary mb-2">Create Schedule</a>
-<table class="table table-dark table-striped">
+<h2>All Travel Schedules</h2>
+
+<!-- Search/Filter Form -->
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <select name="source_universe" class="form-select">
+            <option value="">All Sources</option>
+            {% for u in universes %}
+            <option value="{{ u.pk }}" {% if u.pk|stringformat:"s" == source_universe_selected %}selected{% endif %}>
+                {{ u.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="destination_universe" class="form-select">
+            <option value="">All Destinations</option>
+            {% for u in universes %}
+            <option value="{{ u.pk }}" {% if u.pk|stringformat:"s" == destination_universe_selected %}selected{% endif %}>
+                {{ u.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">All Status</option>
+            <option value="Available" {% if status_selected and status_selected == "Available" %}selected{% endif %}>Available</option>
+            <option value="Booked" {% if status_selected and status_selected == "Booked" %}selected{% endif %}>Booked</option>
+            <option value="Travel Failed" {% if status_selected and status_selected == "Travel Failed" %}selected{% endif %}>Travel Failed</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <!-- Single date filter -->
+        <input type="date" name="travel_date" class="form-control" value="{{ travel_date_selected }}">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-travel w-100">Search</button>
+    </div>
+</form>
+
+<a href="{% url 'scheduler_create' %}" class="btn btn-travel mb-3">Create New Schedule</a>
+
+<table class="table table-striped table-dark">
     <thead>
         <tr>
-            <th>Source</th>
-            <th>Destination</th>
             <th>Date</th>
-            <th>Max Capacity</th>
-            <th>Status</th>
+            <th>Source Universe</th>
+            <th>Destination Universe</th>
+            <th>Capacity</th>
             <th>Booked</th>
             <th>Available</th>
+            <th>Status</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for schedule in schedules %}
+    {% for s in schedules %}
         <tr>
-            <td>{{ schedule.source_universe.name }}</td>
-            <td>{{ schedule.destination_universe.name }}</td>
-            <td>{{ schedule.date }}</td>
-            <td>{{ schedule.max_capacity }}</td>
+            <td>{{ s.date }}</td>
+            <td>{{ s.source_universe.name }}</td>
+            <td>{{ s.destination_universe.name }}</td>
+            <td>{{ s.max_capacity }}</td>
+            <td>{{ s.booked_count }}</td>
+            <td>{{ s.available_slots }}</td>
+            <td class="status-{{ s.status }}">{{ s.status }}</td>
             <td>
-                {% if schedule.status == "Available" %}
-                    <span class="badge bg-success">{{ schedule.status }}</span>
-                {% elif schedule.status == "Booked" %}
-                    <span class="badge bg-warning text-dark">{{ schedule.status }}</span>
-                {% else %}
-                    <span class="badge bg-danger">{{ schedule.status }}</span>
-                {% endif %}
-            </td>
-            <td>{{ schedule.booked_count }}</td>
-            <td>{{ schedule.available_slots }}</td>
-            <td>
-                <a href="{% url 'scheduler_update' schedule.travel_id %}" class="btn btn-sm btn-warning">Edit</a>
-                <a href="{% url 'scheduler_delete' schedule.travel_id %}" class="btn btn-sm btn-danger">Delete</a>
+                <a href="{% url 'scheduler_update' s.pk %}" class="btn btn-portal btn-sm">Edit</a>
+                <a href="{% url 'scheduler_delete' s.pk %}" class="btn btn-danger btn-sm">Delete</a>
             </td>
         </tr>
-        {% empty %}
-        <tr><td colspan="8">No schedules found.</td></tr>
-        {% endfor %}
+    {% empty %}
+        <tr>
+            <td colspan="8" class="text-center">No schedules found.</td>
+        </tr>
+    {% endfor %}
     </tbody>
 </table>
 {% endblock %}

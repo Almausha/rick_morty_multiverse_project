@@ -119,11 +119,9 @@ class RandomEvent(models.Model):
 
 
 
-#PortalTimeScheduler
-
-# universe/models.py
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import date
 
 class PortalTimeScheduler(models.Model):
     travel_id = models.AutoField(primary_key=True)
@@ -140,24 +138,24 @@ class PortalTimeScheduler(models.Model):
     def __str__(self):
         return f"{self.source_universe.name} → {self.destination_universe.name} on {self.date}"
 
-    # --- Helper methods ---
+    # ---------------- Helper Properties ----------------
+    @property
     def booked_count(self):
-        return self.booking_set.filter(canceled=False).count()
+        # Replace 'booking_set' with actual related_name if you have a Booking model
+        return getattr(self, 'booking_set', []).filter(canceled=False).count() if hasattr(self, 'booking_set') else 0
 
+    @property
     def available_slots(self):
-        return self.max_capacity - self.booked_count()
+        return max(self.max_capacity - self.booked_count, 0)
 
+    @property
     def status(self):
-        if self.available_slots() <= 0:
-            return "Not Available"
-        elif self.booked_count() > 0:
+        if self.available_slots <= 0:
             return "Booked"
+        elif self.date < date.today():
+            return "Travel Failed"
         else:
             return "Available"
-
-
-
-
 
 
 #Booking
@@ -167,27 +165,21 @@ class PortalTimeScheduler(models.Model):
 
 # universe/models.py
 
-from django.db import models
-from django.contrib.auth.models import User
-from .models import PortalTimeScheduler
-
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
     schedule = models.ForeignKey(
         PortalTimeScheduler,
         on_delete=models.CASCADE,
         related_name='booking_set',
-        null=True,  # temporary for existing rows
+        null=True,
         blank=True
     )
     canceled = models.BooleanField(default=False)
     booked_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        # Make sure schedule is not None
         if self.schedule:
-            # Use its name if it exists, else fallback
-            schedule_name = getattr(self.schedule, 'name', f"Schedule {self.schedule.id}")
+            schedule_name = f"{self.schedule.source_universe.name} → {self.schedule.destination_universe.name} on {self.schedule.date} (ID: {self.schedule.travel_id})"
         else:
             schedule_name = "No Schedule"
         return f"{self.user.username} → {schedule_name}"

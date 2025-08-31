@@ -119,10 +119,77 @@ def scheduler_dashboard(request):
 
 
 
-# ---------------- List ----------------
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from datetime import date
+from .models import PortalTimeScheduler
+from .forms import PortalTimeSchedulerForm
+
+# ---------------- Dashboard ----------------
+def scheduler_dashboard(request):
+    # Auto-delete past schedules
+    PortalTimeScheduler.objects.filter(date__lt=date.today()).delete()
+
+    schedules = PortalTimeScheduler.objects.filter(date__gte=date.today())
+    total_schedules = schedules.count()
+    total_booked = sum(s.booked_count for s in schedules)
+    total_available = sum(s.available_slots for s in schedules)
+    recent_schedules = schedules.order_by('date')[:5]
+
+    context = {
+        'total_schedules': total_schedules,
+        'total_booked': total_booked,
+        'total_available': total_available,
+        'recent_schedules': recent_schedules,
+    }
+    return render(request, 'universe/scheduler/dashboard.html', context)
+
+
+
+
+from datetime import date
+from django.shortcuts import render
+from .models import PortalTimeScheduler, Universe
+
 def scheduler_list(request):
-    schedules = PortalTimeScheduler.objects.all().order_by('-date')
-    return render(request, 'universe/scheduler/list.html', {'schedules': schedules})
+    # Start with future schedules
+    schedules = PortalTimeScheduler.objects.filter(date__gte=date.today()).order_by('date')
+
+    # Get filter values
+    source_universe = request.GET.get('source_universe')
+    destination_universe = request.GET.get('destination_universe')
+    status = request.GET.get('status')
+    travel_date = request.GET.get('travel_date')  # single date
+
+    # Apply filters
+    if source_universe:
+        schedules = schedules.filter(source_universe_id=source_universe)
+    if destination_universe:
+        schedules = schedules.filter(destination_universe_id=destination_universe)
+    if travel_date:
+        schedules = schedules.filter(date=travel_date)
+
+    # Filter by status using Python list comprehension
+    if status:
+        schedules = [s for s in schedules if s.status == status]
+
+    # Universes for dropdown
+    universes = Universe.objects.filter(status='Safe', danger_level=0)
+
+    context = {
+        'schedules': schedules,
+        'universes': universes,
+        'source_universe_selected': source_universe,
+        'destination_universe_selected': destination_universe,
+        'status_selected': status,
+        'travel_date_selected': travel_date,
+    }
+    return render(request, 'universe/scheduler/list.html', context)
+
+
+
 
 # ---------------- Create ----------------
 def scheduler_create(request):

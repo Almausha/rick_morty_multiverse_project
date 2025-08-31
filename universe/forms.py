@@ -28,7 +28,8 @@ class UniverseFilterForm(forms.Form):
 
 
 from django import forms
-from .models import PortalTimeScheduler
+from .models import PortalTimeScheduler, Universe
+from datetime import date
 
 class PortalTimeSchedulerForm(forms.ModelForm):
     class Meta:
@@ -40,6 +41,43 @@ class PortalTimeSchedulerForm(forms.ModelForm):
             'source_universe': forms.Select(attrs={'class': 'form-select'}),
             'destination_universe': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Only safe universes
+        safe_universes = Universe.objects.filter(status='Safe', danger_level=0)
+        self.fields['source_universe'].queryset = safe_universes
+        self.fields['destination_universe'].queryset = safe_universes
+
+    def clean_date(self):
+        travel_date = self.cleaned_data.get('date')
+        if travel_date < date.today():
+            raise forms.ValidationError("Travel date must be in the future.")
+        return travel_date
+    
+
+from django import forms
+from .models import Universe
+
+class ScheduleFilterForm(forms.Form):
+    source_universe = forms.ModelChoiceField(
+        queryset=Universe.objects.filter(status='Safe', danger_level=0),
+        required=False,
+        label="Source Universe"
+    )
+    destination_universe = forms.ModelChoiceField(
+        queryset=Universe.objects.filter(status='Safe', danger_level=0),
+        required=False,
+        label="Destination Universe"
+    )
+    status = forms.ChoiceField(
+        choices=[('', 'All'), ('Available', 'Available'), ('Booked', 'Booked'), ('Travel Failed', 'Travel Failed')],
+        required=False
+    )
+    start_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type':'date'}))
+    end_date = forms.DateField(required=False, widget=forms.DateInput(attrs={'type':'date'}))
+
+
 
 
 # ---------------- JourneyLog form ----------------

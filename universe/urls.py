@@ -19,9 +19,8 @@ urlpatterns = [
     path('scheduler/dashboard/', views.scheduler_dashboard, name='scheduler_dashboard'),
     path('scheduler/list/', views.scheduler_list, name='scheduler_list'),
     path('scheduler/create/', views.scheduler_create, name='scheduler_create'),
-    path('scheduler/<int:pk>/update/', views.scheduler_update, name='scheduler_update'),
-    path('scheduler/<int:pk>/delete/', views.scheduler_delete, name='scheduler_delete'),
-    
+    path('scheduler/update/<int:pk>/', views.scheduler_update, name='scheduler_update'),
+    path('scheduler/delete/<int:pk>/', views.scheduler_delete, name='scheduler_delete'),
 
     # ---------------- Journey Logs ----------------
     path('journey_dashboard/', views.journey_dashboard, name='journey_dashboard'),
