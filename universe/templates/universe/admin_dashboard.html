@@ -1,0 +1,13 @@
+{% extends "universe/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Admin Dashboard</h2>
+    <p>Welcome, {{ request.user.username }}</p>
+    <a href="{% url 'universe_dashboard' %}" class="btn btn-dark">Universe Vault</a>
+    <a href="{% url 'journey_dashboard' %}" class="btn btn-dark">Journey Logs</a>
+    <a href="{% url 'scheduler_dashboard' %}" class="btn btn-dark">Travel Scheduler</a>
+    <br><br>
+    <a href="/admin/" class="btn btn-danger">Go to Django Admin</a>
+    <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
+</div>
+{% endblock %}

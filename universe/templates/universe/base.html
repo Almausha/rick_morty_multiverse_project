@@ -12,22 +12,6 @@
         .btn-portal { background-color: #58a6ff; color: white; }
         .btn-travel { background-color: #3fb950; color: white; }
         .btn-danger { background-color: #dc3545; color: white; }
-
-        /* Universe Status Colors */
-        .status-Safe { color: #28a745; }
-        .status-Destroyed { color: #dc3545; }
-        .status-Unstable { color: #ffc107; }
-        .status-Unknown { color: #6c757d; }
-
-        /* Danger Levels */
-        .danger-Low { color: #17a2b8; }
-        .danger-High { color: #dc3545; }
-
-        /* Travel Schedule Status */
-        .status-Booked { color: #dc3545; font-weight: bold; }
-        .status-Available { color: #3fb950; font-weight: bold; }
-        .status-Failed { color: #ffc107; font-weight: bold; }
-        .status-Not-Available { color: #6c757d; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -38,6 +22,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
+        {% if show_admin_nav %}
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <!-- Universe Vault Dropdown -->
@@ -70,6 +55,7 @@
                 </li>
             </ul>
         </div>
+        {% endif %}
     </div>
 </nav>
 

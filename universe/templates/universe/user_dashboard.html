@@ -1,0 +1,8 @@
+{% extends "universe/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>User Dashboard</h2>
+    <p>Welcome, {{ request.user.username }}</p>
+    <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
+</div>
+{% endblock %}

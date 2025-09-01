@@ -1,0 +1,22 @@
+
+
+{% extends "universe/base.html" %}
+
+{% block content %}
+<div class="d-flex flex-column justify-content-center align-items-center" style="height: 80vh; background: linear-gradient(135deg, #0d1117, #1c1f26);">
+    
+    <div class="text-center text-light p-5 rounded" style="background: rgba(24,28,36,0.85); box-shadow: 0 0 30px #58a6ff;">
+        <h1 class="display-4 mb-3" style="font-family: 'Orbitron', sans-serif; color: #58a6ff;">🌌 Welcome to the Multiverse Portal 🌌</h1>
+        <p class="lead mb-4" style="color: #c9d1d9;">Choose your path and explore infinite universes!</p>
+
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{% url 'admin_login' %}" class="btn btn-danger btn-lg shadow-lg" style="width: 160px;">Admin Login</a>
+            <a href="{% url 'user_login' %}" class="btn btn-primary btn-lg shadow-lg" style="width: 160px;">User Login</a>
+            <a href="{% url 'user_signup' %}" class="btn btn-success btn-lg shadow-lg" style="width: 160px;">User Sign Up</a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+

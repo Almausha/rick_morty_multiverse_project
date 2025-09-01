@@ -1,29 +1,50 @@
+
+
+
 from django.contrib import admin
-from .models import Admin, Universe, PortalTimeScheduler, JourneyLog, Booking, Artefact, Auction, Marketplace, RandomEvent
-from .models import JourneyLog
-from django.contrib import admin
-from .models import PortalTimeScheduler
-# Simple model registrations
-admin.site.register(Admin)
-admin.site.register(Universe)
+from django.contrib.auth.models import User
+from .models import (
+    Admin, Universe, PortalTimeScheduler, JourneyLog,
+    Booking, Artefact, Auction, Marketplace, RandomEvent
+)
 
-admin.site.register(Booking)
-admin.site.register(Artefact)
-admin.site.register(Auction)
-admin.site.register(Marketplace)
-admin.site.register(RandomEvent)
+# ---------------- Universe ----------------
+@admin.register(Universe)
+class UniverseAdmin(admin.ModelAdmin):
+    list_display = ('name', 'universe_type', 'status', 'danger_level', 'admin')
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "admin":
+            kwargs["queryset"] = User.objects.filter(is_staff=True)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-
-
-admin.register(PortalTimeScheduler)
+# ---------------- Portal Time Scheduler ----------------
+@admin.register(PortalTimeScheduler)
 class PortalTimeSchedulerAdmin(admin.ModelAdmin):
     list_display = ('travel_id', 'source_universe', 'destination_universe', 'date', 'status', 'max_capacity')
     readonly_fields = ('status',)
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "admin":
+            kwargs["queryset"] = User.objects.filter(is_staff=True)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
+# ---------------- Journey Log ----------------
 @admin.register(JourneyLog)
 class JourneyLogAdmin(admin.ModelAdmin):
     list_display = ('user', 'universe', 'travel_date', 'success', 'manual_entry', 'points_awarded')
     list_filter = ('success', 'manual_entry')
     search_fields = ('user__username', 'universe__name')
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "user":
+            kwargs["queryset"] = User.objects.filter(is_staff=True)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+# ---------------- Other Models ----------------
+admin.site.register(Admin)
+admin.site.register(Booking)
+admin.site.register(Artefact)
+admin.site.register(Auction)
+admin.site.register(Marketplace)
+admin.site.register(RandomEvent)
