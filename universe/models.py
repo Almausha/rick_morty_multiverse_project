@@ -200,3 +200,38 @@ class JourneyLog(models.Model):
 
     def __str__(self):
         return f"{self.user} -> {self.universe} at {self.travel_date}"
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from django.db import models
+from django.contrib.auth.models import User
+from .models import PortalTimeScheduler  # adjust if necessary
+
+class TravelWishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist')
+    schedule = models.ForeignKey(PortalTimeScheduler, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = False  # Django won't try to create or migrate this table
+        db_table = "universe_travelwishlist"  # Matches your manually created table
+        verbose_name = "Travel Wishlist"
+        verbose_name_plural = "Travel Wishlists"
+        ordering = ['-added_at']
+
+    def __str__(self):
+        return f"{self.user.username} → {self.schedule}"
+

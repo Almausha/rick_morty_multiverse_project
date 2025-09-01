@@ -12,20 +12,27 @@
         .btn-portal { background-color: #58a6ff; color: white; }
         .btn-travel { background-color: #3fb950; color: white; }
         .btn-danger { background-color: #dc3545; color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'universe_dashboard' %}"><i class="fas fa-rocket me-2"></i>Universe Vault</a>
+        <!-- Brand as plain text -->
+        <span class="navbar-brand">
+            <i class="fas fa-rocket me-2"></i>Universe Vault
+        </span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        {% if show_admin_nav %}
+        <!-- Admin Navbar -->
+        {% if user.is_authenticated and user.is_staff %}
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <!-- Universe Vault Dropdown -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'admin_dashboard' %}">Back to Dashboard</a>
+                </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Universe Vault</a>
                     <ul class="dropdown-menu">
@@ -34,8 +41,6 @@
                         <li><a class="dropdown-item" href="{% url 'universe_create' %}">Add Universe</a></li>
                     </ul>
                 </li>
-
-                <!-- Travel Scheduler Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Travel Scheduler</a>
                     <ul class="dropdown-menu">
@@ -44,13 +49,30 @@
                         <li><a class="dropdown-item" href="{% url 'scheduler_create' %}">Create Schedule</a></li>
                     </ul>
                 </li>
-
-                <!-- Journey Logs Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Journey Logs</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'journey_dashboard' %}">Dashboard</a></li>
                         <li><a class="dropdown-item" href="{% url 'create_journey' %}">Add Journey</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- User Navbar -->
+        {% if user.is_authenticated and not user.is_staff and not is_welcome %}
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user_dashboard' %}">Back to Dashboard</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">My Dashboard</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'user_booking_scheduler' %}">Booking Scheduler</a></li>
+                        <li><a class="dropdown-item" href="{% url 'user_booking_history' %}">Booking History</a></li>
+                        <li><a class="dropdown-item" href="{% url 'user_wishlist' %}">Wishlist</a></li>
                     </ul>
                 </li>
             </ul>

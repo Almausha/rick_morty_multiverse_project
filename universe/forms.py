@@ -101,3 +101,29 @@ class JourneyLogForm(forms.ModelForm):
 
             # Filter universes by single admin field
             self.fields['universe'].queryset = Universe.objects.filter(admin=admin_user)
+
+
+
+
+
+
+
+
+
+
+
+from .models import Booking, TravelWishlist
+from django import forms
+
+# ---------------- Booking Form ----------------
+class BookingForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = []  # No fields required; booking is done via schedule selection
+
+# ---------------- Wishlist Form ----------------
+class WishlistForm(forms.ModelForm):
+    class Meta:
+        model = TravelWishlist
+        fields = []  # No fields required; wishlist is done via schedule selection
+

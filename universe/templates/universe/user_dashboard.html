@@ -3,6 +3,38 @@
 <div class="container mt-5">
     <h2>User Dashboard</h2>
     <p>Welcome, {{ request.user.username }}</p>
-    <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
+
+    <div class="row mt-4">
+        <!-- Booking Scheduler -->
+        <div class="col-md-4 mb-3">
+            <div class="card p-3">
+                <h5>Booking Scheduler</h5>
+                <p>View available schedules and book your travel.</p>
+                <a href="{% url 'user_booking_scheduler' %}" class="btn btn-travel">Go to Scheduler</a>
+            </div>
+        </div>
+
+        <!-- Travel Wishlist -->
+        <div class="col-md-4 mb-3">
+            <div class="card p-3">
+                <h5>Travel Wishlist</h5>
+                <p>Save universes you want to visit later.</p>
+                <a href="{% url 'user_wishlist' %}" class="btn btn-portal">View Wishlist</a>
+            </div>
+        </div>
+
+        <!-- Booking History -->
+        <div class="col-md-4 mb-3">
+            <div class="card p-3">
+                <h5>Booking History</h5>
+                <p>See your upcoming bookings and past schedules.</p>
+                <a href="{% url 'user_booking_history' %}" class="btn btn-secondary">View History</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+    </div>
 </div>
 {% endblock %}

@@ -136,10 +136,24 @@ def scheduler_list(request):
     }
     return render(request, 'universe/scheduler/list.html', context)
 
+
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import PortalTimeSchedulerForm
+
 def scheduler_create(request):
     if request.method == 'POST':
         form = PortalTimeSchedulerForm(request.POST)
         if form.is_valid():
+            source = form.cleaned_data.get('source_universe')
+            destination = form.cleaned_data.get('destination_universe')
+
+            if source == destination:
+                messages.error(request, "Source and Destination cannot be the same.")
+                return render(request, 'universe/scheduler/form.html', {'form': form})
+
             scheduler = form.save(commit=False)
             scheduler.admin = request.user
             scheduler.save()
@@ -148,6 +162,7 @@ def scheduler_create(request):
     else:
         form = PortalTimeSchedulerForm()
     return render(request, 'universe/scheduler/form.html', {'form': form})
+
 
 def scheduler_update(request, pk):
     schedule = get_object_or_404(PortalTimeScheduler, pk=pk)
@@ -217,6 +232,20 @@ def delete_journey(request, pk):
         return redirect('journey_dashboard')
     return render(request, 'universe/journey/delete_journey.html', {'log': log})
 
+
+
+
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.models import User
+from django.contrib import messages
+from universe.models import PortalTimeScheduler, Booking, TravelWishlist, Universe
+from datetime import date
+
 # ===================== Welcome Page =====================
 def welcome(request):
     return render(request, "universe/welcome.html", {"show_admin_nav": False})
@@ -275,4 +304,162 @@ def admin_dashboard(request):
 
 @login_required
 def user_dashboard(request):
-    return render(request, "universe/user_dashboard.html", {"show_admin_nav": True})
+    return render(request, "universe/user_dashboard.html", {"show_admin_nav": False})
+
+
+
+
+
+
+
+
+
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from datetime import date
+from .models import PortalTimeScheduler, Booking, TravelWishlist, Universe
+
+# ===================== User Booking Scheduler =====================
+@login_required
+def user_booking_scheduler(request):
+    # Get all future schedules
+    schedules = PortalTimeScheduler.objects.filter(date__gte=date.today()).order_by("date")
+
+    # Apply search filters
+    source = request.GET.get('source')
+    destination = request.GET.get('destination')
+    travel_date = request.GET.get('date')
+
+    if source:
+        schedules = schedules.filter(source_universe_id=source)
+    if destination:
+        schedules = schedules.filter(destination_universe_id=destination)
+    if travel_date:
+        schedules = schedules.filter(date=travel_date)
+
+    # Exclude fully booked schedules
+    schedules = [s for s in schedules if s.available_slots > 0]
+
+    # Get user's booked schedule IDs
+    user_booked_schedule_ids = set(
+        Booking.objects.filter(user=request.user, canceled=False)
+        .values_list('schedule_id', flat=True)
+    )
+
+    # Annotate schedules with already_booked flag
+    for s in schedules:
+        s.already_booked = s.travel_id in user_booked_schedule_ids
+
+    # Get next upcoming booking
+    upcoming_booking = Booking.objects.filter(
+        user=request.user,
+        schedule__date__gte=date.today(),
+        canceled=False
+    ).order_by('schedule__date').first()
+
+    universes = Universe.objects.filter(status='Safe', danger_level=0)
+    return render(request, 'universe/user/booking_scheduler.html', {
+        'schedules': schedules,
+        'universes': universes,
+        'source_selected': source,
+        'destination_selected': destination,
+        'date_selected': travel_date,
+        'upcoming_booking': upcoming_booking,
+    })
+
+
+# ===================== Book a Schedule =====================
+@login_required
+def user_book_schedule(request, schedule_id):
+    schedule = get_object_or_404(PortalTimeScheduler, pk=schedule_id)
+
+    # Check if user already booked this schedule
+    if Booking.objects.filter(user=request.user, schedule=schedule, canceled=False).exists():
+        messages.warning(request, "You have already booked this schedule.")
+        return redirect('user_booking_scheduler')
+
+    # Check if user has another booking on the same date
+    if Booking.objects.filter(user=request.user, schedule__date=schedule.date, canceled=False).exists():
+        messages.warning(request, "You already have a booking on this date. Cannot book multiple schedules on the same day.")
+        return redirect('user_booking_scheduler')
+
+    # Check if schedule has available slots
+    if schedule.available_slots <= 0:
+        messages.error(request, "No slots available for this schedule.")
+        return redirect('user_booking_scheduler')
+
+    # Book the schedule
+    Booking.objects.create(user=request.user, schedule=schedule)
+
+    # Auto-remove from wishlist if exists
+    TravelWishlist.objects.filter(user=request.user, schedule=schedule).delete()
+
+    messages.success(request, f"Schedule {schedule} booked successfully!")
+    return redirect('user_booking_history')
+
+
+# ===================== Wishlist =====================
+@login_required
+def user_add_to_wishlist(request, schedule_id):
+    schedule = get_object_or_404(PortalTimeScheduler, pk=schedule_id)
+    TravelWishlist.objects.get_or_create(user=request.user, schedule=schedule)
+    messages.success(request, f"{schedule} added to wishlist.")
+    return redirect('user_wishlist')
+
+
+@login_required
+def user_wishlist(request):
+    wishlist = TravelWishlist.objects.filter(user=request.user)
+    search_query = request.GET.get('q')
+    if search_query:
+        wishlist = wishlist.filter(
+            schedule__source_universe__name__icontains=search_query
+        ) | wishlist.filter(
+            schedule__destination_universe__name__icontains=search_query
+        )
+    return render(request, 'universe/user/wishlist.html', {'wishlist': wishlist})
+
+
+@login_required
+def user_remove_from_wishlist(request, wishlist_id):
+    item = get_object_or_404(TravelWishlist, pk=wishlist_id)
+    item.delete()
+    messages.success(request, "Item removed from wishlist.")
+    return redirect('user_wishlist')
+
+
+# ===================== Booking History =====================
+@login_required
+def user_booking_history(request):
+    bookings = Booking.objects.filter(user=request.user).order_by('-schedule__date')
+
+    search_date = request.GET.get('date')
+    source = request.GET.get('source')
+    destination = request.GET.get('destination')
+
+    if search_date:
+        bookings = bookings.filter(schedule__date=search_date)
+    if source:
+        bookings = bookings.filter(schedule__source_universe_id=int(source))
+    if destination:
+        bookings = bookings.filter(schedule__destination_universe_id=int(destination))
+
+    # Upcoming booking (nearest future booking)
+    upcoming_booking = Booking.objects.filter(
+        user=request.user,
+        schedule__date__gte=date.today(),
+        canceled=False
+    ).order_by('schedule__date').first()
+
+    universes = Universe.objects.filter(status='Safe', danger_level=0)
+    return render(request, 'universe/user/booking_history.html', {
+        'bookings': bookings,
+        'upcoming_booking': upcoming_booking,
+        'universes': universes,
+        'source_selected': source,
+        'destination_selected': destination,
+        'date_selected': search_date,
+    })

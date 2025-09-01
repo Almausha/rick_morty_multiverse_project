@@ -36,6 +36,27 @@ urlpatterns = [
     path('journey/create/', views.create_journey, name='create_journey'),
     path('journey/edit/<int:pk>/', views.edit_journey, name='edit_journey'),
     path('journey/delete/<int:pk>/', views.delete_journey, name='delete_journey'),
+
+
+
+
+
+
+    
+
+
+# ---------------- User Features ----------------
+path('user/booking-scheduler/', views.user_booking_scheduler, name='user_booking_scheduler'),
+path('user/book-schedule/<int:schedule_id>/', views.user_book_schedule, name='user_book_schedule'),
+
+path('user/wishlist/', views.user_wishlist, name='user_wishlist'),
+path('user/add-wishlist/<int:schedule_id>/', views.user_add_to_wishlist, name='user_add_to_wishlist'),
+path('user/remove-wishlist/<int:wishlist_id>/', views.user_remove_from_wishlist, name='user_remove_from_wishlist'),
+
+path('user/booking-history/', views.user_booking_history, name='user_booking_history'),
+
+
+
 ]
 
 
