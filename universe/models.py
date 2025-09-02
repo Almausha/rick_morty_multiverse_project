@@ -286,47 +286,7 @@ class OrderItem(models.Model):
     def subtotal(self):
         return self.price * self.quantity
 
-# ---------------- Auction & Bid ----------------
-class Auction(models.Model):
-    auction_id = models.AutoField(primary_key=True)
-    artefact = models.OneToOneField(Artefact, on_delete=models.CASCADE)
-    starting_price = models.DecimalField(max_digits=12, decimal_places=2)
-    start_time = models.DateTimeField(null=True, blank=True)
-    end_time = models.DateTimeField(null=True, blank=True)
-    active = models.BooleanField(default=False)
-    admin = models.ForeignKey("Admin", on_delete=models.SET_NULL, null=True)
-    winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='won_auctions')
-    finalized = models.BooleanField(default=False)
 
-    class Meta:
-        db_table = 'universe_auction'
-        managed = False
-
-    def current_highest(self):
-        last = self.bids.order_by('-amount', '-created_at').first()
-        return last.amount if last else self.starting_price
-
-    def highest_bidder(self):
-        last = self.bids.order_by('-amount', '-created_at').first()
-        return last.bidder if last else None
-
-    def is_live(self):
-        now = timezone.now()
-        return self.active and self.start_time and self.end_time and self.start_time <= now <= self.end_time
-
-    def __str__(self):
-        return f"Auction {self.auction_id} - {self.artefact.name}"
-
-class Bid(models.Model):
-    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name='bids')
-    bidder = models.ForeignKey(User, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-amount', '-created_at']
-        db_table = 'universe_bid'
-        managed = False
 
 # ---------------- Notifications & Transaction history ----------------
 class Notification(models.Model):
@@ -337,18 +297,22 @@ class Notification(models.Model):
 
     class Meta:
         db_table = 'universe_notification'
-        managed = False
+        managed = False   # 🚨 If you want Django to manage this table, set to True
+
 
 class TransactionRecord(models.Model):
-    TYPE_CHOICES = [('purchase', 'Purchase'), ('auction', 'Auction')]
+    TYPE_CHOICES = [
+        ('purchase', 'Purchase'),
+        # 🚨 removed 'auction' since auction feature is gone
+    ]
+
     tx_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    artefact = models.ForeignKey(Artefact, on_delete=models.SET_NULL, null=True)
+    artefact = models.ForeignKey('Artefact', on_delete=models.SET_NULL, null=True)
     tx_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
-    auction = models.ForeignKey(Auction, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         db_table = 'universe_transactionrecord'
-        managed = False
+        managed = True   # 🚨 same here, set True if you want Django migrations to control it

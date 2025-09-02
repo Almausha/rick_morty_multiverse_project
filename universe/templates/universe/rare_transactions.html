@@ -1,0 +1,37 @@
+{% extends "universe/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center fw-bold text-warning">Rare Transactions 💎</h2>
+
+    {% if records %}
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-hover table-dark text-light align-middle text-center">
+                <thead class="table-secondary text-dark">
+                    <tr>
+                        <th>Artefact</th>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in records %}
+                    <tr>
+                        <td>{{ tx.artefact.name }}</td>
+                        <td>{{ tx.tx_type }}</td>
+                        <td>${{ tx.price }}</td>
+                        <td>{{ tx.created_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center my-5">
+            <p class="fw-bold fs-4 text-warning">No rare transactions found.</p>
+            <a href="{% url 'rare_artefact_list' %}" class="btn btn-warning btn-lg mt-3">Back to Rare Artefacts</a>
+            <a href="{% url 'marketplace_list' %}" class="btn btn-primary btn-lg mt-3 ms-2">Go to Marketplace</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

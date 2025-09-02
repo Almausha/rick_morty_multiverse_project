@@ -1,0 +1,16 @@
+{% extends "universe/base.html" %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <h3 class="text-danger mb-4">Checkout Error</h3>
+    <p class="fw-bold">{{ error }}</p>
+
+    <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+        <!-- Back to Cart -->
+        <a href="{% url 'cart_view' %}" class="btn btn-secondary btn-lg">Back to Cart</a>
+        <!-- Back to Marketplace (common artefacts) -->
+        <a href="{% url 'marketplace_list' %}" class="btn btn-primary btn-lg">Back to Marketplace</a>
+        <!-- Back to Rare Artefacts -->
+        <a href="{% url 'rare_artefact_list' %}" class="btn btn-warning btn-lg">Back to Rare Artefacts</a>
+    </div>
+</div>
+{% endblock %}

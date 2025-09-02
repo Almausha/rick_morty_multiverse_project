@@ -218,23 +218,6 @@ def scheduler_delete(request, pk):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 from django.db.models import Sum, Count
 from django.shortcuts import render
 from .models import JourneyLog
@@ -366,32 +349,20 @@ def logout_view(request):
     logout(request)
     return redirect("welcome")
 
-# ===================== Dashboards =====================
-from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render, get_object_or_404, redirect
-from django.utils import timezone
-from .models import Artefact, Auction
+
+
+
 
 @staff_member_required
 def admin_dashboard(request):
-    """Admin dashboard with auction start functionality for rare artefacts"""
+    """Admin dashboard for managing rare artefacts (no auctions)"""
     rare_artefacts = Artefact.objects.filter(is_rare=True, quantity=1, listed=True)
 
     if request.method == "POST":
         artefact_id = request.POST.get("artefact_id")
-        minutes = int(request.POST.get("minutes", 5))  # default 5 minutes
         artefact = get_object_or_404(Artefact, artefact_id=artefact_id)
 
-        start = timezone.now()
-        end = start + timezone.timedelta(minutes=minutes)
-
-        Auction.objects.create(
-            artefact=artefact,
-            starting_price=artefact.price,
-            start_time=start,
-            end_time=end,
-            active=True
-        )
+        # Example action: unlist artefact directly (or mark as sold, etc.)
         artefact.listed = False
         artefact.save()
 
@@ -402,9 +373,18 @@ def admin_dashboard(request):
         "universe/admin_dashboard.html",
         {
             "show_admin_nav": True,
-            "rare_artefacts": rare_artefacts
-        }
+            "rare_artefacts": rare_artefacts,
+        },
     )
+
+
+
+@login_required
+def user_dashboard(request):
+    return render(request, "universe/user_dashboard.html", {"show_admin_nav": False})
+
+
+
 
 
 @login_required
@@ -594,14 +574,29 @@ from django.utils import timezone
 from django.db import transaction
 from django.db.models import F
 from django.http import JsonResponse
-from .models import Artefact, Cart, CartItem, Order, OrderItem, Auction, Bid, Notification, TransactionRecord
+from .models import Artefact, Cart, CartItem, Order, OrderItem,  Notification, TransactionRecord
 
 # ---------------- Marketplace ----------------
 @login_required
 def marketplace_list(request):
-    """List all common artefacts with quantity > 1"""
+    """List all common artefacts with quantity > 1 and optional search by name or price"""
     artifacts = Artefact.objects.filter(is_common=True, quantity__gt=1, listed=True).order_by('-created_at')
+
+    # Search by artifact name
+    search_name = request.GET.get('name')
+    if search_name:
+        artifacts = artifacts.filter(name__icontains=search_name)
+
+    # Search by price range
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    if min_price:
+        artifacts = artifacts.filter(price__gte=min_price)
+    if max_price:
+        artifacts = artifacts.filter(price__lte=max_price)
+
     return render(request, 'universe/marketplace_list.html', {'artifacts': artifacts})
+
 
 @login_required
 def artefact_detail(request, pk):
@@ -609,18 +604,46 @@ def artefact_detail(request, pk):
     artefact = get_object_or_404(Artefact, artefact_id=pk)
     return render(request, 'universe/artefact_detail.html', {'artefact': artefact})
 
+
 @login_required
 def add_to_cart(request, pk):
-    """Add an artefact to the user's cart"""
+    """Add an artefact to the user's cart with chosen quantity"""
     artefact = get_object_or_404(Artefact, artefact_id=pk)
+
     if artefact.quantity <= 0:
         return redirect('marketplace_list')
+
+    # Get quantity from POST, default to 1
+    try:
+        qty = int(request.POST.get('quantity', 1))
+    except ValueError:
+        qty = 1
+
+    if qty < 1:
+        qty = 1
+    if qty > artefact.quantity:
+        qty = artefact.quantity  # cannot exceed stock
+
     cart, _ = Cart.objects.get_or_create(user=request.user)
-    item, _ = CartItem.objects.get_or_create(cart=cart, artefact=artefact)
-    item.quantity = F('quantity') + 1
+    item, created = CartItem.objects.get_or_create(cart=cart, artefact=artefact)
+
+    if not created:
+        # Update quantity, ensure it does not exceed stock
+        item.quantity = min(item.quantity + qty, artefact.quantity)
+    else:
+        item.quantity = qty
+
     item.save()
-    item.refresh_from_db()  # update F expression
     return redirect('cart_view')
+
+
+
+
+
+
+
+
+
 
 @login_required
 def cart_view(request):
@@ -636,6 +659,7 @@ def remove_cart_item(request, item_id):
     return redirect('cart_view')
 
 @login_required
+@login_required
 def checkout(request):
     """Checkout: convert cart to order and deduct quantities atomically"""
     cart = get_object_or_404(Cart, user=request.user)
@@ -647,15 +671,23 @@ def checkout(request):
                 arte = Artefact.objects.select_for_update().get(pk=ci.artefact.pk)
                 if arte.quantity < ci.quantity:
                     transaction.set_rollback(True)
-                    return render(request, 'universe/checkout_error.html', {'error': f"Not enough stock for {arte.name}"})
+                    return render(request, 'universe/checkout_error.html', {
+                        'error': f"Not enough stock for {arte.name}"
+                    })
                 arte.quantity = F('quantity') - ci.quantity
                 arte.save()
                 arte.refresh_from_db()
                 OrderItem.objects.create(order=order, artefact=arte, price=arte.price, quantity=ci.quantity)
-                TransactionRecord.objects.create(user=request.user, artefact=arte, tx_type='purchase', price=ci.artefact.price * ci.quantity)
+                TransactionRecord.objects.create(
+                    user=request.user,
+                    artefact=arte,
+                    tx_type='purchase',
+                    price=ci.artefact.price * ci.quantity
+                )
             cart.items.all().delete()
         return redirect('order_detail', order_id=order.order_id)
     return render(request, 'universe/checkout.html', {'cart': cart})
+
 
 @login_required
 def order_detail(request, order_id):
@@ -666,204 +698,157 @@ def order_detail(request, order_id):
 
 
 
-
-
-
-
-
-
-# ---------------- Auction ----------------
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils import timezone
-from django.http import JsonResponse
-from django.db import transaction
-from django.db.models import F
-from .models import Artefact, Auction, Bid, Notification, Order, OrderItem, TransactionRecord
-
-def is_admin(user):
-    return user.is_staff or user.is_superuser
-
-@user_passes_test(is_admin)
-def start_auction(request, artefact_id):
-    """Admin: start an auction for a rare artefact"""
-    artefact = get_object_or_404(Artefact, artefact_id=artefact_id, is_rare=True, quantity=1)
-
-    # Prevent duplicate auctions for the same artefact
-    existing_auction = Auction.objects.filter(artefact=artefact, active=True).first()
-    if existing_auction:
-        return render(request, 'universe/admin_dashboard.html', {
-            'show_admin_nav': True,
-            'rare_artefacts': Artefact.objects.filter(is_rare=True, quantity=1, listed=True),
-            'error': f"Auction for '{artefact.name}' is already active."
-        })
-
-    if request.method == 'POST':
-        minutes = int(request.POST.get('minutes', 5))
-        start = timezone.now()
-        end = start + timezone.timedelta(minutes=minutes)
-        auction = Auction.objects.create(
-            artefact=artefact,
-            starting_price=artefact.price,
-            start_time=start,
-            end_time=end,
-            active=True
-        )
-        artefact.listed = False
-        artefact.save()
-        return redirect('auction_detail', auction_id=auction.auction_id)
-
-    return render(request, 'universe/admin_dashboard.html', {
-        'show_admin_nav': True,
-        'rare_artefacts': Artefact.objects.filter(is_rare=True, quantity=1, listed=True)
-    })
-
-
-def auction_list(request):
-    """Show active auctions; if none, show last ended"""
-    now = timezone.now()
-    active = Auction.objects.filter(active=True, start_time__lte=now, end_time__gte=now).select_related('artefact')
-    last = Auction.objects.filter(active=False).order_by('-end_time').first()
-    return render(request, 'universe/auction_list.html', {
-        'auctions': active if active.exists() else ([last] if last else []),
-        'active': active.exists()
-    })
-
-
-def auction_detail(request, auction_id):
-    """Auction detail and current highest bid"""
-    auction = get_object_or_404(Auction, auction_id=auction_id)
-    highest = auction.bids.order_by('-amount', '-created_at').first()
-    current_price = highest.amount if highest else auction.starting_price
-    return render(request, 'universe/auction_detail.html', {
-        'auction': auction,
-        'current_price': current_price,
-        'highest': highest
-    })
-
-
-@login_required
-def place_bid(request, auction_id):
-    """AJAX endpoint to place a bid"""
-    auction = get_object_or_404(Auction, auction_id=auction_id)
-    now = timezone.now()
-    if not auction.active or not (auction.start_time <= now <= auction.end_time):
-        return JsonResponse({'success': False, 'error': 'Auction is not active.'})
-    try:
-        amount = float(request.POST.get('amount'))
-    except:
-        return JsonResponse({'success': False, 'error': 'Invalid amount.'})
-    highest = auction.bids.order_by('-amount', '-created_at').first()
-    highest_amount = highest.amount if highest else auction.starting_price
-    if amount <= highest_amount:
-        return JsonResponse({'success': False, 'error': f'Your bid must exceed current highest ({highest_amount})'})
-    bid = Bid.objects.create(auction=auction, bidder=request.user, amount=amount)
-    if highest and highest.bidder != request.user:
-        Notification.objects.create(
-            user=highest.bidder,
-            message=f"Someone has outbid you on '{auction.artefact.name}'. Increase your bid to reclaim the lead!"
-        )
-    return JsonResponse({'success': True, 'new_amount': amount, 'bidder': request.user.username})
-
-
-def auction_current(request, auction_id):
-    """AJAX polling endpoint for current highest bid"""
-    auction = get_object_or_404(Auction, auction_id=auction_id)
-    highest = auction.bids.order_by('-amount', '-created_at').first()
-    return JsonResponse({
-        'current': float(highest.amount) if highest else float(auction.starting_price),
-        'highest_bidder': highest.bidder.username if highest else None,
-        'ended': timezone.now() > auction.end_time if auction.end_time else False
-    })
-
-
-@login_required
-def finalize_auction(request, auction_id):
-    """Finalize auction, create order for winner"""
-    auction = get_object_or_404(Auction, auction_id=auction_id)
-    now = timezone.now()
-    if auction.finalized:
-        return JsonResponse({'success': False, 'error': 'Already finalized.'})
-    if now < auction.end_time:
-        return JsonResponse({'success': False, 'error': 'Auction not yet ended.'})
-
-    highest = auction.bids.order_by('-amount', '-created_at').first()
-    auction.finalized = True
-    auction.active = False
-    auction.save()
-
-    if not highest:
-        return JsonResponse({'success': True, 'message': 'Auction ended with no bids.'})
-
-    with transaction.atomic():
-        winner = highest.bidder
-        arte = Artefact.objects.select_for_update().get(pk=auction.artefact.pk)
-        if arte.quantity < 1:
-            return JsonResponse({'success': False, 'error': 'Artefact not available.'})
-        arte.quantity = F('quantity') - 1
-        arte.save()
-        arte.refresh_from_db()
-
-        order = Order.objects.create(user=winner, total=highest.amount, status='paid')
-        OrderItem.objects.create(order=order, artefact=arte, price=highest.amount, quantity=1)
-        TransactionRecord.objects.create(user=winner, artefact=arte, tx_type='auction', price=highest.amount, auction=auction)
-        Notification.objects.create(
-            user=winner,
-            message=f"Congratulations! You won '{arte.name}' for {highest.amount}. Check your orders/checkout page."
-        )
-
-    return JsonResponse({'success': True, 'redirect_url': f'/orders/{order.order_id}/'})
-
-
-
-
 # ---------------- User Dashboard ----------------
-from django.db.models import Sum, Count
+from django.db.models import Sum
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import TransactionRecord
+
 
 @login_required
 def user_dashboard(request):
+    # Only transactions (no bids anymore)
     recent_tx = TransactionRecord.objects.filter(user=request.user).order_by('-created_at')[:5]
-    recent_bids = Bid.objects.filter(bidder=request.user).order_by('-created_at')[:5]
 
-    total_spent = TransactionRecord.objects.filter(user=request.user).aggregate(total=Sum('price'))['total'] or 0
-    total_bids = Bid.objects.filter(bidder=request.user).count()
+    total_spent = TransactionRecord.objects.filter(user=request.user).aggregate(
+        total=Sum('price')
+    )['total'] or 0
 
     return render(request, 'universe/user_dashboard.html', {
         'recent_tx': recent_tx,
-        'recent_bids': recent_bids,
         'total_spent': total_spent,
-        'total_bids': total_bids
     })
+
 
 @login_required
 def transactions_search(request):
     qs = TransactionRecord.objects.filter(user=request.user)
+
+    # Search by artefact name
     q = request.GET.get('q')
     if q:
         qs = qs.filter(artefact__name__icontains=q)
+
+    # Date range filter
     date_from = request.GET.get('from')
     if date_from:
         qs = qs.filter(created_at__date__gte=date_from)
+
     date_to = request.GET.get('to')
     if date_to:
         qs = qs.filter(created_at__date__lte=date_to)
+
     return render(request, 'universe/transactions.html', {'records': qs})
 
 
 
+
+
 @login_required
-def bidding_history(request):
-    qs = Bid.objects.filter(bidder=request.user)
+def checkout_single_item(request, item_id):
+    """
+    Checkout a single cart item.
+    """
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+
+    with transaction.atomic():
+        arte = Artefact.objects.select_for_update().get(pk=item.artefact.pk)
+        if arte.quantity < item.quantity:
+            transaction.set_rollback(True)
+            return render(
+                request,
+                'universe/checkout_error.html',
+                {'error': f"Not enough stock for '{arte.name}'"}
+            )
+
+        # Deduct quantity
+        arte.quantity = F('quantity') - item.quantity
+        arte.save()
+        arte.refresh_from_db()
+
+        # Create order for this single item
+        order = Order.objects.create(user=request.user, total=item.subtotal(), status='paid')
+        OrderItem.objects.create(order=order, artefact=arte, price=arte.price, quantity=item.quantity)
+
+        # Record transaction
+        TransactionRecord.objects.create(
+            user=request.user,
+            artefact=arte,
+            tx_type='purchase',
+            price=item.subtotal()
+        )
+
+        # Remove item from cart
+        item.delete()
+
+    return redirect('order_detail', order_id=order.order_id)
+
+
+
+
+
+
+
+@login_required
+def rare_artefact_list(request):
+    """List all rare artefacts with search by name or price"""
+    artefacts = Artefact.objects.filter(is_common=False, listed=True).order_by('-created_at')
+
+    # Search by name
+    search_name = request.GET.get('name')
+    if search_name:
+        artefacts = artefacts.filter(name__icontains=search_name)
+
+    # Search by price
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    if min_price:
+        artefacts = artefacts.filter(price__gte=min_price)
+    if max_price:
+        artefacts = artefacts.filter(price__lte=max_price)
+
+    return render(request, 'universe/rare_artefact_list.html', {
+        'artefacts': artefacts,
+        'message': "🎯 Grab your antics now!"
+    })
+
+
+@login_required
+def rare_transactions_search(request):
+    """Rare artefact transactions history"""
+    qs = TransactionRecord.objects.filter(user=request.user, artefact__is_common=False)
+
     q = request.GET.get('q')
     if q:
-        qs = qs.filter(auction__artefact__name__icontains=q)
+        qs = qs.filter(artefact__name__icontains=q)
+
     date_from = request.GET.get('from')
     if date_from:
         qs = qs.filter(created_at__date__gte=date_from)
+
     date_to = request.GET.get('to')
     if date_to:
         qs = qs.filter(created_at__date__lte=date_to)
-    return render(request, 'universe/bidding_history.html', {'bids': qs})
+
+    return render(request, 'universe/rare_transactions.html', {'records': qs})
+
+
+
+@login_required
+def update_cart_item(request, item_id):
+    """Update quantity of a cart item"""
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    if request.method == 'POST':
+        qty = int(request.POST.get('quantity', 1))
+        if qty > 0 and qty <= item.artefact.quantity:
+            item.quantity = qty
+            item.save()
+    return redirect('cart_view')
+
+
+
+
+
 
 
 

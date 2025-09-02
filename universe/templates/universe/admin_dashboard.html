@@ -1,65 +1,61 @@
-
-
-
-
 {% extends "universe/base.html" %}
 {% block content %}
 <div class="container mt-5">
-    <h2>Admin Dashboard</h2>
-    <p>Welcome, {{ request.user.username }}</p>
-
-    <!-- Navigation Buttons -->
-    <a href="{% url 'universe_dashboard' %}" class="btn btn-dark">Universe Vault</a>
-    <a href="{% url 'journey_dashboard' %}" class="btn btn-dark">Journey Logs</a>
-    <a href="{% url 'scheduler_dashboard' %}" class="btn btn-dark">Travel Scheduler</a>
-    <br><br>
-
-    <!-- Auction Section -->
-    <h3>Start Auction for Rare Artefacts</h3>
-    <button id="show-auction" class="btn btn-primary mb-3">Show Rare Artefacts</button>
-
-    <div id="auction-list" style="display:none;">
-        <table class="table table-striped mt-2">
-            <thead>
-                <tr>
-                    <th>Artefact</th>
-                    <th>Price</th>
-                    <th>Duration (minutes)</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for artefact in rare_artefacts %}
-                <tr>
-                    <td>{{ artefact.name }}</td>
-                    <td>{{ artefact.price }}</td>
-                    <td>
-                        <form method="post" action="{% url 'start_auction' artefact_id=artefact.artefact_id %}" style="display:flex; align-items:center;">
-                            {% csrf_token %}
-                            <input type="number" name="minutes" value="5" min="1" class="form-control me-2" style="width:80px;">
-                            <button type="submit" class="btn btn-primary btn-sm">Start Auction</button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4">No rare artefacts available for auction.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-warning">🚀 Admin Dashboard</h2>
+        <p class="text-light fs-5">Welcome, <span class="text-info">{{ request.user.username }}</span></p>
     </div>
 
-    <br>
-    <a href="/admin/" class="btn btn-danger">Go to Django Admin</a>
-    <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
+    <!-- Quick Action Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <a href="{% url 'universe_dashboard' %}" class="text-decoration-none">
+                <div class="card shadow-sm h-100 bg-dark text-light p-4 text-center hover-card">
+                    <h5 class="text-warning fw-bold">Universe Vault</h5>
+                    <p class="text-secondary">Manage all universes and their status</p>
+                    <i class="bi bi-globe2 fs-1 text-info"></i>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'journey_dashboard' %}" class="text-decoration-none">
+                <div class="card shadow-sm h-100 bg-dark text-light p-4 text-center hover-card">
+                    <h5 class="text-warning fw-bold">Journey Logs</h5>
+                    <p class="text-secondary">View and track interdimensional journeys</p>
+                    <i class="bi bi-rocket-takeoff fs-1 text-info"></i>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'scheduler_dashboard' %}" class="text-decoration-none">
+                <div class="card shadow-sm h-100 bg-dark text-light p-4 text-center hover-card">
+                    <h5 class="text-warning fw-bold">Travel Scheduler</h5>
+                    <p class="text-secondary">Plan and monitor universe travel schedules</p>
+                    <i class="bi bi-calendar-event fs-1 text-info"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Admin Info / Actions -->
+    <div class="card shadow-sm bg-dark text-light p-4 rounded-4">
+        <h5 class="text-warning fw-bold mb-3">Admin Quick Links</h5>
+        <p class="text-secondary mb-4">Manage universes, journeys, and schedules from here. Use Django Admin for advanced configurations.</p>
+        <div class="d-flex flex-wrap gap-3">
+            <a href="/admin/" class="btn btn-danger btn-lg fw-bold">Go to Django Admin</a>
+            <a href="{% url 'logout' %}" class="btn btn-secondary btn-lg fw-bold">Logout</a>
+        </div>
+    </div>
 </div>
 
-<script>
-    document.getElementById('show-auction').addEventListener('click', function() {
-        const auctionDiv = document.getElementById('auction-list');
-        auctionDiv.style.display = auctionDiv.style.display === 'none' ? 'block' : 'none';
-        this.textContent = auctionDiv.style.display === 'block' ? 'Hide Rare Artefacts' : 'Show Rare Artefacts';
-    });
-</script>
+<style>
+.hover-card {
+    border-radius: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 2rem rgba(255,255,255,0.15);
+}
+</style>
 {% endblock %}

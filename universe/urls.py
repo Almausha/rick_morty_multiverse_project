@@ -1,3 +1,5 @@
+# 
+
 
 from django.urls import path
 from django.contrib.auth import views as auth_views
@@ -75,21 +77,20 @@ path('user/booking-history/', views.user_booking_history, name='user_booking_his
     path('cart/remove/<int:item_id>/', views.remove_cart_item, name='remove_cart_item'),
     path('checkout/', views.checkout, name='checkout'),
     path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
+    path('rare-artefacts/', views.rare_artefact_list, name='rare_artefact_list'),
+    path('rare-transactions/', views.rare_transactions_search, name='rare_transactions_search'),
 
-    # Auctions
-    path('auctions/', views.auction_list, name='auction_list'),
-    path('auctions/start/<int:artefact_id>/', views.start_auction, name='start_auction'),
-    path('auctions/<int:auction_id>/', views.auction_detail, name='auction_detail'),
-    path('auctions/<int:auction_id>/place_bid/', views.place_bid, name='place_bid'),
-    path('auctions/<int:auction_id>/current/', views.auction_current, name='auction_current'),
-    path('auctions/<int:auction_id>/finalize/', views.finalize_auction, name='finalize_auction'),
+
+
+    
+
+    
 
     # User dashboard
     path('dashboard/', views.user_dashboard, name='user_dashboard'),
-path('transactions/search/', views.transactions_search, name='transactions_search'),
-path('bids/', views.bidding_history, name='bidding_history'),
+ path('transactions/search/', views.transactions_search, name='transactions_search'),
+ path('checkout/item/<int:item_id>/', views.checkout_single_item, name='checkout_single_item'),
+path('cart/update/<int:item_id>/', views.update_cart_item, name='update_cart_item'),
+
 
 ]
-
-
-

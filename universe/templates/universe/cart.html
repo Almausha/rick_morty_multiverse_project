@@ -1,36 +1,60 @@
 {% extends "universe/base.html" %}
 {% block content %}
-<h2>Your Cart</h2>
-{% if cart.items.exists %}
-<table class="table">
-  <thead>
-    <tr>
-      <th>Item</th>
-      <th>Qty</th>
-      <th>Price</th>
-      <th>Subtotal</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in cart.items.all %}
-    <tr>
-      <td>{{ item.artefact.name }}</td>
-      <td>{{ item.quantity }}</td>
-      <td>{{ item.artefact.price }}</td>
-      <td>{{ item.subtotal }}</td>
-      <td>
-        <a href="{% url 'remove_cart_item' item.id %}" class="btn btn-sm btn-danger">Remove</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-<form method="post" action="{% url 'checkout' %}">
-  {% csrf_token %}
-  <button class="btn btn-success">Buy Now (Checkout)</button>
-</form>
-{% else %}
-<p>Your cart is empty</p>
-{% endif %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center fw-bold">🛒 Your Cart</h2>
+
+    {% if cart.items.exists %}
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover align-middle text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart.items.all %}
+                <tr>
+                    <td class="fw-semibold">{{ item.artefact.name }}</td>
+                    <td>
+                        <form method="post" action="{% url 'update_cart_item' item.id %}" class="d-flex gap-1 justify-content-center">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" class="form-control form-control-sm" value="{{ item.quantity }}" min="1" max="{{ item.artefact.quantity }}" style="width: 70px;">
+                            <button class="btn btn-primary btn-sm">Update</button>
+                        </form>
+                    </td>
+                    <td>${{ item.artefact.price }}</td>
+                    <td class="fw-bold text-success">${{ item.subtotal }}</td>
+                    <td class="d-flex justify-content-center gap-2">
+                        <form method="post" action="{% url 'checkout_single_item' item.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-success btn-sm">Checkout</button>
+                        </form>
+                        <a href="{% url 'remove_cart_item' item.id %}" class="btn btn-danger btn-sm">Remove</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'marketplace_list' %}" class="btn btn-primary btn-lg">⬅ Back to Marketplace</a>
+        <a href="{% url 'rare_artefact_list' %}" class="btn btn-warning btn-lg">⬅ Back to Rare Artefacts</a>
+    </div>
+
+    {% else %}
+    <div class="d-flex flex-column align-items-center justify-content-center mt-5">
+        <h4 class="text-muted fw-bold">Your cart is empty</h4>
+        <p class="text-secondary">Add artefacts from the marketplace or rare artefacts to start your adventure!</p>
+        <div class="d-flex gap-2">
+            <a href="{% url 'marketplace_list' %}" class="btn btn-primary btn-lg">Go to Marketplace</a>
+            <a href="{% url 'rare_artefact_list' %}" class="btn btn-warning btn-lg">Go to Rare Artefacts</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

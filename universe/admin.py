@@ -1,20 +1,12 @@
 
 
 
-
-
-
-
-
-
-
-
 from django.contrib import admin
 from django.contrib.auth.models import User
 from .models import (
     Admin, Universe, PortalTimeScheduler, JourneyLog, Booking,
-    Artefact, Auction, 
-    Cart, CartItem, Order, OrderItem, Bid, Notification, TransactionRecord
+    Artefact, 
+    Cart, CartItem, Order, OrderItem,  Notification, TransactionRecord
 )
 
 
@@ -58,13 +50,13 @@ class JourneyLogAdmin(admin.ModelAdmin):
 admin.site.register(Admin)
 admin.site.register(Booking)
 admin.site.register(Artefact)
-admin.site.register(Auction)
+
 
 admin.site.register(Cart)
 admin.site.register(CartItem)
 admin.site.register(Order)
 admin.site.register(OrderItem)
-admin.site.register(Bid)
+
 admin.site.register(Notification)
 admin.site.register(TransactionRecord)
 
