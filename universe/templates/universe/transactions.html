@@ -1,0 +1,47 @@
+{% extends "universe/base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Transaction History</h2>
+
+    <!-- Search & Filter -->
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="q" class="form-control" placeholder="Search by artefact name" value="{{ request.GET.q }}">
+        </div>
+        <div class="col-md-3">
+            <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+    </form>
+
+    <!-- Transaction List -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Artefact</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tx in records %}
+            <tr>
+                <td>{{ tx.artefact.name }}</td>
+                <td>{{ tx.tx_type|title }}</td>
+                <td>${{ tx.price }}</td>
+                <td>{{ tx.created_at|date:"Y-m-d" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No transactions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'user_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}

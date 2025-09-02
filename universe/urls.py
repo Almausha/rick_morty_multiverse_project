@@ -15,6 +15,9 @@ urlpatterns = [
 
     # ---------------- Dashboards ----------------
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    
+
+   
     path('user-dashboard/', views.user_dashboard, name='user_dashboard'),
 
     # ---------------- Universe Vault ----------------
@@ -33,9 +36,9 @@ urlpatterns = [
 
     # ---------------- Journey Logs ----------------
     path('journey/dashboard/', views.journey_dashboard, name='journey_dashboard'),
-    path('journey/create/', views.create_journey, name='create_journey'),
-    path('journey/edit/<int:pk>/', views.edit_journey, name='edit_journey'),
-    path('journey/delete/<int:pk>/', views.delete_journey, name='delete_journey'),
+    path('journey/full/', views.full_journey_list, name='full_journey_list'),
+    
+    
 
 
 
@@ -56,6 +59,35 @@ path('user/remove-wishlist/<int:wishlist_id>/', views.user_remove_from_wishlist,
 path('user/booking-history/', views.user_booking_history, name='user_booking_history'),
 
 
+
+
+
+
+
+
+
+
+# Marketplace & Cart
+    path('marketplace/', views.marketplace_list, name='marketplace_list'),
+    path('artefact/<int:pk>/', views.artefact_detail, name='artefact_detail'),
+    path('cart/add/<int:pk>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/', views.cart_view, name='cart_view'),
+    path('cart/remove/<int:item_id>/', views.remove_cart_item, name='remove_cart_item'),
+    path('checkout/', views.checkout, name='checkout'),
+    path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
+
+    # Auctions
+    path('auctions/', views.auction_list, name='auction_list'),
+    path('auctions/start/<int:artefact_id>/', views.start_auction, name='start_auction'),
+    path('auctions/<int:auction_id>/', views.auction_detail, name='auction_detail'),
+    path('auctions/<int:auction_id>/place_bid/', views.place_bid, name='place_bid'),
+    path('auctions/<int:auction_id>/current/', views.auction_current, name='auction_current'),
+    path('auctions/<int:auction_id>/finalize/', views.finalize_auction, name='finalize_auction'),
+
+    # User dashboard
+    path('dashboard/', views.user_dashboard, name='user_dashboard'),
+path('transactions/search/', views.transactions_search, name='transactions_search'),
+path('bids/', views.bidding_history, name='bidding_history'),
 
 ]
 

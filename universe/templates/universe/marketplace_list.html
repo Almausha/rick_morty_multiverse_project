@@ -1,0 +1,17 @@
+{% extends "universe/base.html" %}
+{% block content %}
+<h1>Marketplace</h1>
+<div class="row">
+  {% for a in artifacts %}
+  <div class="col-md-4 mb-3">
+    <div class="card p-2">
+      <h5 class="mt-2">{{ a.name }}</h5>
+      <p>Price: {{ a.price }}</p>
+      <p>Qty: {{ a.quantity }}</p>
+      <a class="btn btn-primary" href="{% url 'artefact_detail' a.artefact_id %}">View</a>
+      <a class="btn btn-success" href="{% url 'add_to_cart' a.artefact_id %}">Add to cart</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

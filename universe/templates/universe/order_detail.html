@@ -1,0 +1,15 @@
+<!-- universe/templates/universe/order_detail.html -->
+{% extends "universe/base.html" %}
+{% block content %}
+<h2>Order #{{ order.order_id }}</h2>
+<p>Status: {{ order.status }}</p>
+<p>Total: ${{ order.total }}</p>
+
+<h3>Items:</h3>
+<ul>
+  {% for item in order.items.all %}
+    <li>{{ item.quantity }} x {{ item.artefact.name }} - ${{ item.price }}</li>
+  {% endfor %}
+</ul>
+<a href="{% url 'user_dashboard' %}">Back to Dashboard</a>
+{% endblock %}

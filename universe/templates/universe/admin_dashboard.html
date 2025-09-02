@@ -1,13 +1,65 @@
+
+
+
+
 {% extends "universe/base.html" %}
 {% block content %}
 <div class="container mt-5">
     <h2>Admin Dashboard</h2>
     <p>Welcome, {{ request.user.username }}</p>
+
+    <!-- Navigation Buttons -->
     <a href="{% url 'universe_dashboard' %}" class="btn btn-dark">Universe Vault</a>
     <a href="{% url 'journey_dashboard' %}" class="btn btn-dark">Journey Logs</a>
     <a href="{% url 'scheduler_dashboard' %}" class="btn btn-dark">Travel Scheduler</a>
     <br><br>
+
+    <!-- Auction Section -->
+    <h3>Start Auction for Rare Artefacts</h3>
+    <button id="show-auction" class="btn btn-primary mb-3">Show Rare Artefacts</button>
+
+    <div id="auction-list" style="display:none;">
+        <table class="table table-striped mt-2">
+            <thead>
+                <tr>
+                    <th>Artefact</th>
+                    <th>Price</th>
+                    <th>Duration (minutes)</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for artefact in rare_artefacts %}
+                <tr>
+                    <td>{{ artefact.name }}</td>
+                    <td>{{ artefact.price }}</td>
+                    <td>
+                        <form method="post" action="{% url 'start_auction' artefact_id=artefact.artefact_id %}" style="display:flex; align-items:center;">
+                            {% csrf_token %}
+                            <input type="number" name="minutes" value="5" min="1" class="form-control me-2" style="width:80px;">
+                            <button type="submit" class="btn btn-primary btn-sm">Start Auction</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No rare artefacts available for auction.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <br>
     <a href="/admin/" class="btn btn-danger">Go to Django Admin</a>
     <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
 </div>
+
+<script>
+    document.getElementById('show-auction').addEventListener('click', function() {
+        const auctionDiv = document.getElementById('auction-list');
+        auctionDiv.style.display = auctionDiv.style.display === 'none' ? 'block' : 'none';
+        this.textContent = auctionDiv.style.display === 'block' ? 'Hide Rare Artefacts' : 'Show Rare Artefacts';
+    });
+</script>
 {% endblock %}

@@ -33,6 +33,69 @@
         </div>
     </div>
 
+    <div class="row mt-4">
+        <!-- Marketplace -->
+        <div class="col-md-4 mb-3">
+            <div class="card p-3">
+                <h5>Marketplace</h5>
+                <p>Browse and buy common artefacts.</p>
+                <a href="{% url 'marketplace_list' %}" class="btn btn-portal">Go to Marketplace</a>
+            </div>
+        </div>
+
+        <!-- Auctions -->
+        <div class="col-md-4 mb-3">
+            <div class="card p-3">
+                <h5>Auctions</h5>
+                <p>Participate in active auctions and bid for rare artefacts.</p>
+                <a href="{% url 'auction_list' %}" class="btn btn-travel">View Auctions</a>
+            </div>
+        </div>
+
+        <!-- Cart -->
+        <div class="col-md-4 mb-3">
+            <div class="card p-3">
+                <h5>Cart</h5>
+                <p>View items in your cart and checkout.</p>
+                <a href="{% url 'cart_view' %}" class="btn btn-secondary">Go to Cart</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Artifact Transactions -->
+        <div class="col-md-6 mb-3">
+            <div class="card p-3">
+                <h5>Recent Transactions</h5>
+                <p>Total Spent: {{ total_spent }}</p>
+                <ul>
+                    {% for tx in recent_tx %}
+                        <li>{{ tx.artefact.name }} - {{ tx.tx_type }} - {{ tx.price }} - {{ tx.created_at|date:"Y-m-d H:i" }}</li>
+                    {% empty %}
+                        <li>No recent transactions.</li>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'transactions_search' %}" class="btn btn-primary">View All Transactions</a>
+            </div>
+        </div>
+
+        <!-- Bidding History -->
+        <div class="col-md-6 mb-3">
+            <div class="card p-3">
+                <h5>Recent Bids</h5>
+                <p>Total Bids: {{ total_bids }}</p>
+                <ul>
+                    {% for bid in recent_bids %}
+                        <li>{{ bid.auction.artefact.name }} - {{ bid.amount }} - {{ bid.created_at|date:"Y-m-d H:i" }}</li>
+                    {% empty %}
+                        <li>No recent bids.</li>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'bidding_history' %}" class="btn btn-primary">View All Bids</a>
+            </div>
+        </div>
+    </div>
+
     <div class="mt-4">
         <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
     </div>

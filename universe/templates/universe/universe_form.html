@@ -2,10 +2,58 @@
 
 {% block content %}
 <h3>{{ form.instance.pk|yesno:"Update Universe,Add New Universe" }}</h3>
-<form method="post">
+
+<form method="post" class="row g-3">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-portal">Save</button>
-    <a href="{% url 'universe_list' %}" class="btn btn-secondary">Cancel</a>
+
+    <div class="col-md-6">
+        {{ form.name.label_tag }}
+        {{ form.name }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.universe_type.label_tag }}
+        {{ form.universe_type }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.visit_date.label_tag }}
+        {{ form.visit_date }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.destroyed_date.label_tag }}
+        {{ form.destroyed_date }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.status.label_tag }}
+        {{ form.status }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.danger_level.label_tag }}
+        {{ form.danger_level }}
+    </div>
+
+    <div class="col-12">
+        {{ form.visited_intergalactic_beings.label_tag }}
+        {{ form.visited_intergalactic_beings }}
+    </div>
+
+    <div class="col-12">
+        {{ form.description.label_tag }}
+        {{ form.description }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.admin.label_tag }}
+        {{ form.admin }}
+    </div>
+
+    <div class="col-12 mt-3">
+        <button class="btn btn-portal">Save</button>
+        <a href="{% url 'universe_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
 </form>
 {% endblock %}

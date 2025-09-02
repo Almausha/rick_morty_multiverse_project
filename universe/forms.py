@@ -7,11 +7,24 @@ from .models import Universe, PortalTimeScheduler
 import datetime
 
 # ---------------- Universe forms ----------------
+from django import forms
+from django.contrib.auth.models import User
+from .models import Universe
+
 class UniverseForm(forms.ModelForm):
+    # Admin dropdown (only staff/superusers)
+    admin = forms.ModelChoiceField(
+        queryset=User.objects.filter(is_staff=True),  # or is_superuser=True
+        required=False,
+        empty_label="Select Admin"
+    )
+
     class Meta:
         model = Universe
-        fields = ['name', 'universe_type', 'visit_date', 'destroyed_date', 'status',
-                  'visited_intergalactic_beings', 'danger_level', 'description']
+        fields = [
+            'name', 'universe_type', 'visit_date', 'destroyed_date', 'status',
+            'visited_intergalactic_beings', 'danger_level', 'description', 'admin'
+        ]
         widgets = {
             'visit_date': forms.DateInput(attrs={'type': 'date'}),
             'destroyed_date': forms.DateInput(attrs={'type': 'date'}),
@@ -25,6 +38,12 @@ class UniverseFilterForm(forms.Form):
     status = forms.ChoiceField(choices=[('', 'All')] + Universe.STATUS_CHOICES, required=False)
     universe_type = forms.ChoiceField(choices=[('', 'All')] + Universe.UNIVERSE_TYPES, required=False)
     danger_level = forms.ChoiceField(choices=[('', 'All'), ('Low', 'Low'), ('High', 'High')], required=False)
+
+
+
+
+
+
 
 
 from django import forms

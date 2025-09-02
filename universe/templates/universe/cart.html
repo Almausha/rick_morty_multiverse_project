@@ -1,0 +1,36 @@
+{% extends "universe/base.html" %}
+{% block content %}
+<h2>Your Cart</h2>
+{% if cart.items.exists %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Qty</th>
+      <th>Price</th>
+      <th>Subtotal</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in cart.items.all %}
+    <tr>
+      <td>{{ item.artefact.name }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>{{ item.artefact.price }}</td>
+      <td>{{ item.subtotal }}</td>
+      <td>
+        <a href="{% url 'remove_cart_item' item.id %}" class="btn btn-sm btn-danger">Remove</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<form method="post" action="{% url 'checkout' %}">
+  {% csrf_token %}
+  <button class="btn btn-success">Buy Now (Checkout)</button>
+</form>
+{% else %}
+<p>Your cart is empty</p>
+{% endif %}
+{% endblock %}

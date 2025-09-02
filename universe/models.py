@@ -61,61 +61,6 @@ class Universe(models.Model):
         return self.status=='Safe' and self.danger_level==0
 
 
-# ---------------- Artefact ----------------
-class Artefact(models.Model):
-    artefact_id = models.AutoField(primary_key=True)
-    name = models.TextField()
-    price = models.IntegerField()
-    collection_date = models.DateField()
-    details = models.TextField()
-    origin_universe_id = models.TextField()
-    artefact_type = models.TextField()
-    a = models.ForeignKey(Admin, on_delete=models.DO_NOTHING)
-    u = models.ForeignKey(Universe, on_delete=models.DO_NOTHING)
-    rare_artifact = models.TextField()
-    common_artifact = models.TextField()
-
-    def __str__(self):
-        return self.name
-
-
-# ---------------- Auction ----------------
-class Auction(models.Model):
-    auction_id = models.AutoField(primary_key=True)
-    starting_bidding_price = models.IntegerField()
-    a = models.ForeignKey(Admin, on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return f"Auction {self.auction_id}"
-
-
-# ---------------- Marketplace ----------------
-class Marketplace(models.Model):
-    marketplace_id = models.AutoField(primary_key=True)
-    price = models.IntegerField()
-    a = models.ForeignKey(Admin, on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return f"Marketplace {self.marketplace_id}"
-    
-
-
-
-  #Random event
-    
-class RandomEvent(models.Model):
-    event_id = models.AutoField(primary_key=True)
-    name = models.TextField()
-    effect = models.CharField(max_length=50)
-    date_triggered = models.DateField()
-    a = models.ForeignKey('Artefact', on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return self.name
-
-
-
-
 
 
 
@@ -235,3 +180,175 @@ class TravelWishlist(models.Model):
     def __str__(self):
         return f"{self.user.username} → {self.schedule}"
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+# ---------------- Artefact ----------------
+class Artefact(models.Model):
+    artefact_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    collection_date = models.DateField(null=True, blank=True)
+    details = models.TextField(blank=True)
+    origin_universe = models.CharField(max_length=200, blank=True)
+    artefact_type = models.CharField(max_length=100, blank=True)
+    admin = models.ForeignKey("Admin", on_delete=models.DO_NOTHING, null=True, blank=True)
+    universe = models.ForeignKey("Universe", on_delete=models.DO_NOTHING, null=True, blank=True)
+    quantity = models.IntegerField(default=1)
+    is_common = models.BooleanField(default=True)
+    is_rare = models.BooleanField(default=False)
+    listed = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        db_table = 'universe_artefact'
+        managed = False  # Django won't manage migrations
+
+    def __str__(self):
+        return self.name
+
+# ---------------- Cart & CartItem ----------------
+class Cart(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'universe_cart'
+        managed = False
+
+    def total(self):
+        return sum(item.subtotal() for item in self.items.all())
+
+    def __str__(self):
+        return f"Cart({self.user.username})"
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    artefact = models.ForeignKey(Artefact, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        db_table = 'universe_cartitem'
+        managed = False
+
+    def subtotal(self):
+        return self.quantity * self.artefact.price
+
+# ---------------- Order & OrderItem ----------------
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('shipped', 'Shipped'),
+        ('cancelled', 'Cancelled'),
+    ]
+    order_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'universe_order'
+        managed = False
+
+    def __str__(self):
+        return f"Order {self.order_id} - {self.user.username}"
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    artefact = models.ForeignKey(Artefact, on_delete=models.SET_NULL, null=True)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    quantity = models.PositiveIntegerField()
+
+    class Meta:
+        db_table = 'universe_orderitem'
+        managed = False
+
+    def subtotal(self):
+        return self.price * self.quantity
+
+# ---------------- Auction & Bid ----------------
+class Auction(models.Model):
+    auction_id = models.AutoField(primary_key=True)
+    artefact = models.OneToOneField(Artefact, on_delete=models.CASCADE)
+    starting_price = models.DecimalField(max_digits=12, decimal_places=2)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    active = models.BooleanField(default=False)
+    admin = models.ForeignKey("Admin", on_delete=models.SET_NULL, null=True)
+    winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='won_auctions')
+    finalized = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'universe_auction'
+        managed = False
+
+    def current_highest(self):
+        last = self.bids.order_by('-amount', '-created_at').first()
+        return last.amount if last else self.starting_price
+
+    def highest_bidder(self):
+        last = self.bids.order_by('-amount', '-created_at').first()
+        return last.bidder if last else None
+
+    def is_live(self):
+        now = timezone.now()
+        return self.active and self.start_time and self.end_time and self.start_time <= now <= self.end_time
+
+    def __str__(self):
+        return f"Auction {self.auction_id} - {self.artefact.name}"
+
+class Bid(models.Model):
+    auction = models.ForeignKey(Auction, on_delete=models.CASCADE, related_name='bids')
+    bidder = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-amount', '-created_at']
+        db_table = 'universe_bid'
+        managed = False
+
+# ---------------- Notifications & Transaction history ----------------
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    seen = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'universe_notification'
+        managed = False
+
+class TransactionRecord(models.Model):
+    TYPE_CHOICES = [('purchase', 'Purchase'), ('auction', 'Auction')]
+    tx_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    artefact = models.ForeignKey(Artefact, on_delete=models.SET_NULL, null=True)
+    tx_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    auction = models.ForeignKey(Auction, on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        db_table = 'universe_transactionrecord'
+        managed = False

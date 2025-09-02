@@ -1,22 +1,33 @@
 
 
 
+
+
+
+
+
+
+
+
 from django.contrib import admin
 from django.contrib.auth.models import User
 from .models import (
-    Admin, Universe, PortalTimeScheduler, JourneyLog,
-    Booking, Artefact, Auction, Marketplace, RandomEvent
+    Admin, Universe, PortalTimeScheduler, JourneyLog, Booking,
+    Artefact, Auction, 
+    Cart, CartItem, Order, OrderItem, Bid, Notification, TransactionRecord
 )
+
 
 # ---------------- Universe ----------------
 @admin.register(Universe)
 class UniverseAdmin(admin.ModelAdmin):
     list_display = ('name', 'universe_type', 'status', 'danger_level', 'admin')
-    
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "admin":
             kwargs["queryset"] = User.objects.filter(is_staff=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 # ---------------- Portal Time Scheduler ----------------
 @admin.register(PortalTimeScheduler)
@@ -28,6 +39,7 @@ class PortalTimeSchedulerAdmin(admin.ModelAdmin):
         if db_field.name == "admin":
             kwargs["queryset"] = User.objects.filter(is_staff=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 # ---------------- Journey Log ----------------
 @admin.register(JourneyLog)
@@ -41,10 +53,18 @@ class JourneyLogAdmin(admin.ModelAdmin):
             kwargs["queryset"] = User.objects.filter(is_staff=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-# ---------------- Other Models ----------------
+
+# ---------------- Simple Registrations ----------------
 admin.site.register(Admin)
 admin.site.register(Booking)
 admin.site.register(Artefact)
 admin.site.register(Auction)
-admin.site.register(Marketplace)
-admin.site.register(RandomEvent)
+
+admin.site.register(Cart)
+admin.site.register(CartItem)
+admin.site.register(Order)
+admin.site.register(OrderItem)
+admin.site.register(Bid)
+admin.site.register(Notification)
+admin.site.register(TransactionRecord)
+
