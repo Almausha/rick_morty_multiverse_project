@@ -297,13 +297,12 @@ class Notification(models.Model):
 
     class Meta:
         db_table = 'universe_notification'
-        managed = False   # 🚨 If you want Django to manage this table, set to True
-
+        managed = False  
 
 class TransactionRecord(models.Model):
     TYPE_CHOICES = [
         ('purchase', 'Purchase'),
-        # 🚨 removed 'auction' since auction feature is gone
+       
     ]
 
     tx_id = models.AutoField(primary_key=True)
@@ -315,4 +314,4 @@ class TransactionRecord(models.Model):
 
     class Meta:
         db_table = 'universe_transactionrecord'
-        managed = True   # 🚨 same here, set True if you want Django migrations to control it
+        managed = True  

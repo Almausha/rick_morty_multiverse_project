@@ -3,7 +3,7 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-sm p-4">
+            <div class="card shadow-sm p-4 bg-dark text-light">
                 <div class="text-center mb-4">
                     <div class="artefact-placeholder d-flex justify-content-center align-items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16">
@@ -13,7 +13,7 @@
                 </div>
 
                 <h2 class="card-title text-center mb-3">{{ artefact.name }}</h2>
-                <p class="text-muted mb-3">{{ artefact.details|default:"No description available." }}</p>
+                <p class="artefact-details mb-3">{{ artefact.details|default:"No description available." }}</p>
 
                 <div class="mb-3 d-flex justify-content-between align-items-center">
                     <span class="badge bg-success fs-6">Price: ${{ artefact.price }}</span>
@@ -44,6 +44,16 @@
     border-radius: 12px;
     background: linear-gradient(135deg, #e2e2e2, #cfcfcf);
     border: 2px dashed #adb5bd;
+}
+
+/* Adaptive detail text */
+.artefact-details {
+    color: #333; /* default (light mode) */
+}
+
+body.bg-dark .artefact-details,
+.card.bg-dark .artefact-details {
+    color: #f8f9fa; /* light text on dark */
 }
 </style>
 {% endblock %}
