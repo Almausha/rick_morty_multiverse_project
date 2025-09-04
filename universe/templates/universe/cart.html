@@ -1,60 +1,114 @@
 {% extends "universe/base.html" %}
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4 text-center fw-bold">🛒 Your Cart</h2>
+<div class="starry-night">
+    <div class="stars"></div>
 
-    {% if cart.items.exists %}
-    <div class="table-responsive shadow-sm rounded">
-        <table class="table table-hover align-middle text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th>Item</th>
-                    <th>Qty</th>
-                    <th>Price</th>
-                    <th>Subtotal</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart.items.all %}
-                <tr>
-                    <td class="fw-semibold">{{ item.artefact.name }}</td>
-                    <td>
-                        <form method="post" action="{% url 'update_cart_item' item.id %}" class="d-flex gap-1 justify-content-center">
-                            {% csrf_token %}
-                            <input type="number" name="quantity" class="form-control form-control-sm" value="{{ item.quantity }}" min="1" max="{{ item.artefact.quantity }}" style="width: 70px;">
-                            <button class="btn btn-primary btn-sm">Update</button>
-                        </form>
-                    </td>
-                    <td>${{ item.artefact.price }}</td>
-                    <td class="fw-bold text-success">${{ item.subtotal }}</td>
-                    <td class="d-flex justify-content-center gap-2">
-                        <form method="post" action="{% url 'checkout_single_item' item.id %}">
-                            {% csrf_token %}
-                            <button class="btn btn-success btn-sm">Checkout</button>
-                        </form>
-                        <a href="{% url 'remove_cart_item' item.id %}" class="btn btn-danger btn-sm">Remove</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <div class="container mt-5 position-relative" style="z-index: 1;">
+        <h2 class="mb-4 text-center fw-bold text-warning">🛒 Your Cart</h2>
 
-    <div class="d-flex justify-content-between mt-4">
-        <a href="{% url 'marketplace_list' %}" class="btn btn-primary btn-lg">⬅ Back to Marketplace</a>
-        <a href="{% url 'rare_artefact_list' %}" class="btn btn-warning btn-lg">⬅ Back to Rare Artefacts</a>
-    </div>
-
-    {% else %}
-    <div class="d-flex flex-column align-items-center justify-content-center mt-5">
-        <h4 class="text-muted fw-bold">Your cart is empty</h4>
-        <p class="text-secondary">Add artefacts from the marketplace or rare artefacts to start your adventure!</p>
-        <div class="d-flex gap-2">
-            <a href="{% url 'marketplace_list' %}" class="btn btn-primary btn-lg">Go to Marketplace</a>
-            <a href="{% url 'rare_artefact_list' %}" class="btn btn-warning btn-lg">Go to Rare Artefacts</a>
+        {% if cart.items.exists %}
+        <div class="table-responsive shadow-sm rounded glowing-card">
+            <table class="table table-hover align-middle text-center table-dark">
+                <thead class="table-secondary text-dark">
+                    <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Subtotal</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart.items.all %}
+                    <tr>
+                        <td class="fw-semibold">{{ item.artefact.name }}</td>
+                        <td>
+                            <form method="post" action="{% url 'update_cart_item' item.id %}" class="d-flex gap-1 justify-content-center">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" class="form-control form-control-sm" value="{{ item.quantity }}" min="1" max="{{ item.artefact.quantity }}" style="width: 70px;">
+                                <button class="btn btn-primary btn-sm glowing-btn">Update</button>
+                            </form>
+                        </td>
+                        <td>${{ item.artefact.price }}</td>
+                        <td class="fw-bold text-success">${{ item.subtotal }}</td>
+                        <td class="d-flex justify-content-center gap-2">
+                            <form method="post" action="{% url 'checkout_single_item' item.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-success btn-sm glowing-btn">Checkout</button>
+                            </form>
+                            <a href="{% url 'remove_cart_item' item.id %}" class="btn btn-danger btn-sm glowing-btn">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'marketplace_list' %}" class="btn btn-primary btn-lg glowing-btn">⬅ Back to Marketplace</a>
+            <a href="{% url 'rare_artefact_list' %}" class="btn btn-warning btn-lg glowing-btn">⬅ Back to Rare Artefacts</a>
+        </div>
+
+        {% else %}
+        <div class="d-flex flex-column align-items-center justify-content-center mt-5">
+            <h4 class="text-warning fw-bold">Your cart is empty</h4>
+            <p class="text-light">Add artefacts from the marketplace or rare artefacts to start your adventure!</p>
+            <div class="d-flex gap-2">
+                <a href="{% url 'marketplace_list' %}" class="btn btn-primary btn-lg glowing-btn">Go to Marketplace</a>
+                <a href="{% url 'rare_artefact_list' %}" class="btn btn-warning btn-lg glowing-btn">Go to Rare Artefacts</a>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
+
+<style>
+/* Starry night background */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: #0d1117;
+    overflow: hidden;
+}
+.stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.stars::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: white;
+    box-shadow:
+        10px 20px #fff, 50px 60px #fff, 80px 150px #fff, 120px 90px #fff,
+        150px 200px #fff, 200px 30px #fff, 250px 180px #fff, 300px 120px #fff,
+        350px 220px #fff, 400px 80px #fff, 450px 150px #fff, 500px 50px #fff;
+    animation: twinkle 3s infinite alternate;
+}
+@keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(0.6); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.6); }
+}
+
+/* Glowing card & buttons */
+.glowing-card {
+    border: 1px solid rgba(255, 221, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 221, 0, 0.2);
+    background-color: rgba(13,17,23,0.9);
+}
+
+.glowing-btn {
+    box-shadow: 0 0 10px #0dcaf0, 0 0 20px #0dcaf0 inset;
+    transition: all 0.3s ease;
+}
+.glowing-btn:hover {
+    box-shadow: 0 0 20px #0dcaf0, 0 0 40px #0dcaf0 inset;
+}
+</style>
 {% endblock %}

@@ -1,51 +1,122 @@
 {% extends 'universe/base.html' %}
 
 {% block content %}
-<div class="card p-4">
-    <h3>Full Journey List</h3>
+<div class="starry-night">
+    <div class="container py-4 position-relative" style="z-index: 2;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="text-warning fw-bold">Full Journey List</h3>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-warning fw-bold">⬅ Back to Dashboard</a>
+        </div>
 
-    <!-- Search/Filter Form -->
-    <form method="GET" class="row g-3 mb-3">
-        <div class="col-md-4">
-            <input type="text" name="username" class="form-control" placeholder="Username" value="{{ request.GET.username }}">
+        <!-- Search/Filter Form -->
+        <div class="card p-4 bg-dark text-light shadow mb-4 hover-card">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="username" class="form-control glow-input" placeholder="Username" value="{{ request.GET.username }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="points" class="form-control glow-input" placeholder="Points" value="{{ request.GET.points }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="date" class="form-control glow-input" value="{{ request.GET.date }}">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-portal w-100 fw-bold">Filter</button>
+                </div>
+            </form>
         </div>
-        <div class="col-md-3">
-            <input type="number" name="points" placeholder="Points" class="form-control" value="{{ request.GET.points }}">
-        </div>
-        <div class="col-md-3">
-            <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
-        </div>
-        <div class="col-md-2">
-            <button class="btn btn-portal w-100">Filter</button>
-        </div>
-    </form>
 
-    <!-- Journey Table -->
-    <table class="table table-dark table-striped mt-2">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Universe</th>
-                <th>Date</th>
-                <th>Success</th>
-                <th>Points</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for log in logs %}
-            <tr>
-                <td>{{ log.user.username }}</td>
-                <td>{{ log.universe.name }}</td>
-                <td>{{ log.travel_date|date:"Y-m-d H:i" }}</td>
-                <td>{{ log.success|yesno:"Yes,No" }}</td>
-                <td>{{ log.points_awarded }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">No journeys found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <!-- Journey Table -->
+        <div class="card p-4 bg-dark text-light shadow hover-card">
+            <table class="table table-dark table-striped mt-2 text-center align-middle">
+                <thead class="table-secondary text-dark">
+                    <tr>
+                        <th>User</th>
+                        <th>Universe</th>
+                        <th>Date</th>
+                        <th>Success</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.user.username }}</td>
+                        <td>{{ log.universe.name }}</td>
+                        <td>{{ log.travel_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ log.success|yesno:"✅,❌" }}</td>
+                        <td>{{ log.points_awarded }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-warning fw-bold">No journeys found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
+<style>
+/* Starry night background */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #0d1117 0%, #12161e 100%);
+    overflow: hidden;
+}
+
+/* Stars layer */
+.starry-night::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    box-shadow:
+        50px 100px #fff, 150px 200px #fff, 250px 300px #fff, 350px 50px #fff,
+        450px 150px #fff, 550px 250px #fff, 650px 350px #fff, 750px 100px #fff,
+        850px 200px #fff, 950px 300px #fff, 1050px 50px #fff, 1150px 150px #fff,
+        1250px 250px #fff, 1350px 350px #fff, 1450px 100px #fff, 1550px 200px #fff;
+    animation: twinkle 6s infinite alternate;
+}
+
+/* Glow animation for stars */
+@keyframes twinkle {
+    0% { opacity: 0.3; transform: scale(0.7); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.3; transform: scale(0.7); }
+}
+
+/* Card hover */
+.hover-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 0.5rem 1.5rem rgba(255, 255, 255, 0.2);
+    transition: 0.3s ease;
+}
+
+/* Input glow effect */
+.glow-input {
+    border-radius: 0.5rem;
+    background-color: #1c1c1c !important;
+    border: 1px solid #444;
+    color: #f8f9fa;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    transition: 0.3s ease;
+}
+.glow-input:focus {
+    outline: none;
+    border-color: #ffc107;
+    box-shadow: 0 0 10px #ffc107;
+}
+
+/* Placeholder visibility */
+.glow-input::placeholder {
+    color: #ffc107 !important;  /* golden color */
+    opacity: 1;
+}
+</style>
 {% endblock %}

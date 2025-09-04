@@ -329,20 +329,33 @@ def user_login(request):
     return render(request, "universe/user_login.html")
 
 # ===================== User Signup =====================
+# ===================== User Signup =====================
 def user_signup(request):
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
+        first_name = request.POST.get("first_name", "")
+        last_name = request.POST.get("last_name", "")
+        email = request.POST.get("email", "")
+
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already exists.")
         else:
-            user = User.objects.create_user(username=username, password=password)
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+            )
             user.is_staff = False
             user.is_superuser = False
             user.save()
             messages.success(request, "Account created! Please log in.")
             return redirect("user_login")
+
     return render(request, "universe/user_signup.html")
+
 
 # ===================== Logout =====================
 def logout_view(request):

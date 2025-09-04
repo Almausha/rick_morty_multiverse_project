@@ -1,13 +1,77 @@
 {% extends "universe/base.html" %}
 
 {% block content %}
-<div class="card p-4 text-center">
-    <h4>Are you sure you want to delete:</h4>
-    <h3>{{ universe.name }}</h3>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a href="{% url 'universe_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+<div class="starry-night">
+    <!-- Stars -->
+    <div id="stars"></div>
+
+    <div class="container py-5 position-relative" style="z-index: 1;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-warning">🛸 Delete Universe</h3>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-portal">Back to Dashboard</a>
+        </div>
+
+        <div class="card p-4 text-center bg-dark text-light shadow">
+            <h4>Are you sure you want to delete:</h4>
+            <h3>{{ universe.name }}</h3>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+                <a href="{% url 'universe_list' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
 </div>
+
+<!-- Starry background CSS -->
+<style>
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: #0d1117;
+    overflow: hidden;
+}
+
+#stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 0;
+}
+
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: twinkle 2s infinite alternate;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.3; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.3; transform: scale(0.5); }
+}
+</style>
+
+<!-- Generate stars dynamically -->
+<script>
+const starCount = 100;
+const starsContainer = document.getElementById('stars');
+
+for(let i = 0; i < starCount; i++){
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.width = star.style.height = Math.random() * 2 + 1 + 'px';
+    star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+    starsContainer.appendChild(star);
+}
+</script>
 {% endblock %}

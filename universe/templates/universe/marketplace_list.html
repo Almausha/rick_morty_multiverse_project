@@ -1,62 +1,137 @@
 {% extends "universe/base.html" %}
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4 text-center fw-bold text-warning">Marketplace 🛒</h2>
+<div class="starry-night">
+    <div class="stars"></div>
+    <div class="container py-5 position-relative" style="z-index: 1;">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <h2 class="text-warning fw-bold mb-2">Marketplace 🛒</h2>
+            <a href="{% url 'user_dashboard' %}" class="btn btn-portal mb-2">⬅ Back to Dashboard</a>
+        </div>
 
-    <!-- Search Form -->
-    <form method="get" class="row g-3 mb-4 justify-content-center">
-        <div class="col-auto">
-            <input type="text" name="name" class="form-control bg-secondary text-light border-0" placeholder="Search by name" value="{{ request.GET.name }}">
-        </div>
-        <div class="col-auto">
-            <input type="number" step="0.01" name="min_price" class="form-control bg-secondary text-light border-0" placeholder="Min price" value="{{ request.GET.min_price }}">
-        </div>
-        <div class="col-auto">
-            <input type="number" step="0.01" name="max_price" class="form-control bg-secondary text-light border-0" placeholder="Max price" value="{{ request.GET.max_price }}">
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-warning fw-bold">Search</button>
-        </div>
-    </form>
+        <!-- Search Form -->
+        <form method="get" class="row g-3 mb-4 justify-content-center">
+            <div class="col-auto">
+                <input type="text" name="name" class="form-control bg-dark text-warning border-warning fw-bold" 
+                       placeholder="Search by name" value="{{ request.GET.name }}">
+            </div>
+            <div class="col-auto">
+                <input type="number" step="0.01" name="min_price" class="form-control bg-dark text-warning border-warning fw-bold" 
+                       placeholder="Min price" value="{{ request.GET.min_price }}">
+            </div>
+            <div class="col-auto">
+                <input type="number" step="0.01" name="max_price" class="form-control bg-dark text-warning border-warning fw-bold" 
+                       placeholder="Max price" value="{{ request.GET.max_price }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-warning fw-bold">Search</button>
+            </div>
+        </form>
 
-    <div class="row">
-        {% for artefact in artifacts %}
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm p-3 h-100 bg-dark text-light rounded-4">
-                <h5 class="card-title text-warning">{{ artefact.name }}</h5>
-                <p class="text-light">{{ artefact.details|default:"No description available." }}</p>
-                <div class="mb-2">
-                    <span class="badge bg-success fw-semibold">Price: ${{ artefact.price }}</span>
-                    <span class="badge bg-info text-dark fw-semibold">Available: {{ artefact.quantity }}</span>
-                </div>
-                <div class="mt-2 d-flex justify-content-between align-items-center">
-                    <a href="{% url 'artefact_detail' artefact.artefact_id %}" class="btn btn-outline-light btn-sm">View</a>
-                    <form method="post" action="{% url 'add_to_cart' artefact.artefact_id %}" class="d-flex gap-1">
-                        {% csrf_token %}
-                        <input type="number" name="quantity" class="form-control form-control-sm bg-secondary text-light border-0" value="1" min="1" max="{{ artefact.quantity }}" style="width: 70px;">
-                        <button class="btn btn-warning btn-sm fw-bold">Add to Cart</button>
-                    </form>
+        <!-- Artefacts Grid -->
+        <div class="row">
+            {% for artefact in artifacts %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm p-3 h-100 bg-dark text-light rounded-4">
+                    <h5 class="card-title text-warning">{{ artefact.name }}</h5>
+                    <p class="text-light">{{ artefact.details|default:"No description available." }}</p>
+                    <div class="mb-2 d-flex justify-content-between">
+                        <span class="badge bg-success fw-semibold">Price: ${{ artefact.price }}</span>
+                        <span class="badge bg-info text-dark fw-semibold">Available: {{ artefact.quantity }}</span>
+                    </div>
+                    <div class="mt-2 d-flex justify-content-between align-items-center">
+                        <a href="{% url 'artefact_detail' artefact.artefact_id %}" class="btn btn-outline-light btn-sm">View</a>
+                        <form method="post" action="{% url 'add_to_cart' artefact.artefact_id %}" class="d-flex gap-1">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" class="form-control form-control-sm bg-dark text-warning border-warning" 
+                                   value="1" min="1" max="{{ artefact.quantity }}" style="width: 70px;">
+                            <button class="btn btn-warning btn-sm fw-bold">Add to Cart</button>
+                        </form>
+                    </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="col-12 text-center mt-5">
+                <p class="text-warning fs-5 fw-bold">No artefacts found.</p>
+            </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="col-12 text-center mt-5">
-            <p class="text-warning fs-5 fw-bold">No artefacts found.</p>
-        </div>
-        {% endfor %}
     </div>
 </div>
 
 <style>
-/* Dark theme card hover effect */
+/* Starry night background */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: #0d1117;
+    overflow: hidden;
+}
+
+.stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+.stars::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: white;
+    box-shadow:
+        10px 20px #fff, 50px 60px #fff, 80px 150px #fff, 120px 90px #fff,
+        150px 200px #fff, 200px 30px #fff, 250px 180px #fff, 300px 120px #fff,
+        350px 220px #fff, 400px 80px #fff, 450px 150px #fff, 500px 50px #fff;
+    animation: twinkle 3s infinite alternate;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(0.6); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.6); }
+}
+
+/* Form & card contrast */
+.form-control {
+    border-radius: 0.5rem !important;
+    color: #ffd700 !important;
+    background-color: #1c1f25 !important;
+    border: 1px solid #ffd700 !important;
+}
+
+.form-control::placeholder {
+    color: #f0e68c !important;
+    opacity: 1;
+}
+
 .card:hover {
     transform: translateY(-4px);
     transition: 0.3s ease;
     box-shadow: 0 0.5rem 1rem rgba(255, 255, 255, 0.15);
 }
-/* Rounded input fields */
-.form-control {
-    border-radius: 0.5rem !important;
-}
 </style>
+
+<script>
+/* Generate small twinkling stars dynamically */
+const starCount = 100;
+const starsContainer = document.querySelector('.stars');
+for(let i=0;i<starCount;i++){
+    const star=document.createElement('div');
+    star.className='star';
+    star.style.top=Math.random()*100+'%';
+    star.style.left=Math.random()*100+'%';
+    star.style.width=star.style.height=Math.random()*2+1+'px';
+    star.style.background='white';
+    star.style.position='absolute';
+    star.style.borderRadius='50%';
+    star.style.opacity=Math.random();
+    star.style.animation=`twinkle ${Math.random()*2+1}s infinite alternate`;
+    starsContainer.appendChild(star);
+}
+</script>
 {% endblock %}

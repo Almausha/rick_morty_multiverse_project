@@ -1,36 +1,41 @@
 {% extends "universe/base.html" %}
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm p-4 bg-dark text-light">
-                <div class="text-center mb-4">
-                    <div class="artefact-placeholder d-flex justify-content-center align-items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16">
-                          <path d="M9.828.122a.5.5 0 0 1 .344.058l5 2.5a.5.5 0 0 1 .328.47v7.68a.5.5 0 0 1-.328.47l-5 2.5a.5.5 0 0 1-.344.058L8 13.445 0 9.44V1.56L8 .122zM8 1.87 1 4.13v4.938l7 3.5 7-3.5V4.13L8 1.87z"/>
-                        </svg>
+<div class="starry-night">
+    <!-- Stars -->
+    <div class="stars"></div>
+
+    <div class="container mt-5 position-relative" style="z-index: 1;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm p-4 bg-dark text-light glowing-card">
+                    <div class="text-center mb-4">
+                        <div class="artefact-placeholder d-flex justify-content-center align-items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16">
+                              <path d="M9.828.122a.5.5 0 0 1 .344.058l5 2.5a.5.5 0 0 1 .328.47v7.68a.5.5 0 0 1-.328.47l-5 2.5a.5.5 0 0 1-.344.058L8 13.445 0 9.44V1.56L8 .122zM8 1.87 1 4.13v4.938l7 3.5 7-3.5V4.13L8 1.87z"/>
+                            </svg>
+                        </div>
                     </div>
-                </div>
 
-                <h2 class="card-title text-center mb-3">{{ artefact.name }}</h2>
-                <p class="artefact-details mb-3">{{ artefact.details|default:"No description available." }}</p>
+                    <h2 class="card-title text-center mb-3">{{ artefact.name }}</h2>
+                    <p class="artefact-details mb-3">{{ artefact.details|default:"No description available." }}</p>
 
-                <div class="mb-3 d-flex justify-content-between align-items-center">
-                    <span class="badge bg-success fs-6">Price: ${{ artefact.price }}</span>
-                    <span class="badge bg-info text-dark fs-6">Available: {{ artefact.quantity }}</span>
-                </div>
-
-                <form method="post" action="{% url 'add_to_cart' artefact.artefact_id %}" class="d-grid gap-2">
-                    {% csrf_token %}
-                    <div class="mb-2">
-                        <input type="number" name="quantity" class="form-control" min="1" max="{{ artefact.quantity }}" value="1">
+                    <div class="mb-3 d-flex justify-content-between align-items-center">
+                        <span class="badge bg-success fs-6">Price: ${{ artefact.price }}</span>
+                        <span class="badge bg-info text-dark fs-6">Available: {{ artefact.quantity }}</span>
                     </div>
-                    <button class="btn btn-primary btn-lg">Add to Cart</button>
-                </form>
 
-                <div class="mt-3 text-center">
-                    <a href="{% url 'marketplace_list' %}" class="btn btn-secondary">Back to Marketplace</a>
-                    <a href="{% url 'rare_artefact_list' %}" class="btn btn-warning">Back to Rare Artefacts</a>
+                    <form method="post" action="{% url 'add_to_cart' artefact.artefact_id %}" class="d-grid gap-2">
+                        {% csrf_token %}
+                        <div class="mb-2">
+                            <input type="number" name="quantity" class="form-control" min="1" max="{{ artefact.quantity }}" value="1">
+                        </div>
+                        <button class="btn btn-primary btn-lg glowing-btn">Add to Cart</button>
+                    </form>
+
+                    <div class="mt-3 text-center">
+                        <a href="{% url 'marketplace_list' %}" class="btn btn-secondary">Back to Marketplace</a>
+                        <a href="{% url 'rare_artefact_list' %}" class="btn btn-warning">Back to Rare Artefacts</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -38,22 +43,67 @@
 </div>
 
 <style>
+/* Starry night effect */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: #0d1117;
+    overflow: hidden;
+}
+
+.stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+.stars::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: white;
+    box-shadow:
+        10px 20px #fff, 50px 60px #fff, 80px 150px #fff, 120px 90px #fff,
+        150px 200px #fff, 200px 30px #fff, 250px 180px #fff, 300px 120px #fff,
+        350px 220px #fff, 400px 80px #fff, 450px 150px #fff, 500px 50px #fff;
+    animation: twinkle 3s infinite alternate;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(0.6); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.6); }
+}
+
+/* Artefact card enhancements */
 .artefact-placeholder {
     width: 200px;
     height: 200px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #e2e2e2, #cfcfcf);
-    border: 2px dashed #adb5bd;
+    background: linear-gradient(135deg, #1f1f1f, #3a3a3a);
+    border: 2px dashed rgba(255,255,255,0.2);
 }
 
-/* Adaptive detail text */
 .artefact-details {
-    color: #333; /* default (light mode) */
+    color: #f8f9fa;
 }
 
-body.bg-dark .artefact-details,
-.card.bg-dark .artefact-details {
-    color: #f8f9fa; /* light text on dark */
+.glowing-card {
+    border: 1px solid rgba(255, 221, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 221, 0, 0.2);
+}
+
+.glowing-btn {
+    box-shadow: 0 0 10px #0dcaf0, 0 0 20px #0dcaf0 inset;
+    transition: all 0.3s ease;
+}
+.glowing-btn:hover {
+    box-shadow: 0 0 20px #0dcaf0, 0 0 40px #0dcaf0 inset;
 }
 </style>
 {% endblock %}

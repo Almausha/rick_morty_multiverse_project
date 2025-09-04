@@ -1,82 +1,181 @@
 {% extends 'universe/base.html' %}
 
 {% block content %}
-<h2>All Travel Schedules</h2>
+<div class="starry-night">
+    <div class="container py-4 position-relative" style="z-index: 2;">
 
-<!-- Search/Filter Form -->
-<form method="get" class="row g-2 mb-3">
-    <div class="col-md-3">
-        <select name="source_universe" class="form-select">
-            <option value="">All Sources</option>
-            {% for u in universes %}
-            <option value="{{ u.pk }}" {% if u.pk|stringformat:"s" == source_universe_selected %}selected{% endif %}>
-                {{ u.name }}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-3">
-        <select name="destination_universe" class="form-select">
-            <option value="">All Destinations</option>
-            {% for u in universes %}
-            <option value="{{ u.pk }}" {% if u.pk|stringformat:"s" == destination_universe_selected %}selected{% endif %}>
-                {{ u.name }}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-2">
-        <select name="status" class="form-select">
-            <option value="">All Status</option>
-            <option value="Available" {% if status_selected and status_selected == "Available" %}selected{% endif %}>Available</option>
-            <option value="Booked" {% if status_selected and status_selected == "Booked" %}selected{% endif %}>Booked</option>
-            <option value="Travel Failed" {% if status_selected and status_selected == "Travel Failed" %}selected{% endif %}>Travel Failed</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <!-- Single date filter -->
-        <input type="date" name="travel_date" class="form-control" value="{{ travel_date_selected }}">
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-travel w-100">Search</button>
-    </div>
-</form>
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-warning fw-bold">All Travel Schedules</h2>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-warning fw-bold">⬅ Back to Dashboard</a>
+        </div>
 
-<a href="{% url 'scheduler_create' %}" class="btn btn-travel mb-3">Create New Schedule</a>
+        <!-- Search/Filter Form -->
+        <form method="get" class="row g-3 mb-4 align-items-center">
+            <div class="col-md-3">
+                <select name="source_universe" class="form-select form-select-sm glow-input">
+                    <option value="">All Sources</option>
+                    {% for u in universes %}
+                    <option value="{{ u.pk }}" {% if u.pk|stringformat:"s" == source_universe_selected %}selected{% endif %}>
+                        {{ u.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="destination_universe" class="form-select form-select-sm glow-input">
+                    <option value="">All Destinations</option>
+                    {% for u in universes %}
+                    <option value="{{ u.pk }}" {% if u.pk|stringformat:"s" == destination_universe_selected %}selected{% endif %}>
+                        {{ u.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select form-select-sm glow-input">
+                    <option value="">All Status</option>
+                    <option value="Available" {% if status_selected and status_selected == "Available" %}selected{% endif %}>Available</option>
+                    <option value="Booked" {% if status_selected and status_selected == "Booked" %}selected{% endif %}>Booked</option>
+                    <option value="Travel Failed" {% if status_selected and status_selected == "Travel Failed" %}selected{% endif %}>Travel Failed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="travel_date" class="form-control form-control-sm glow-input" value="{{ travel_date_selected }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-warning w-100 fw-bold">Search</button>
+            </div>
+        </form>
 
-<table class="table table-striped table-dark">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Source Universe</th>
-            <th>Destination Universe</th>
-            <th>Capacity</th>
-            <th>Booked</th>
-            <th>Available</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for s in schedules %}
-        <tr>
-            <td>{{ s.date }}</td>
-            <td>{{ s.source_universe.name }}</td>
-            <td>{{ s.destination_universe.name }}</td>
-            <td>{{ s.max_capacity }}</td>
-            <td>{{ s.booked_count }}</td>
-            <td>{{ s.available_slots }}</td>
-            <td class="status-{{ s.status }}">{{ s.status }}</td>
-            <td>
-                <a href="{% url 'scheduler_update' s.pk %}" class="btn btn-portal btn-sm">Edit</a>
-                <a href="{% url 'scheduler_delete' s.pk %}" class="btn btn-danger btn-sm">Delete</a>
-            </td>
-        </tr>
-    {% empty %}
-        <tr>
-            <td colspan="8" class="text-center">No schedules found.</td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+        <!-- Create Schedule Button -->
+        <a href="{% url 'scheduler_create' %}" class="btn btn-success mb-3 fw-bold shadow-sm">➕ Create New Schedule</a>
+
+        <!-- Table -->
+        <div class="card p-3 bg-dark text-light shadow rounded-4">
+            <div class="table-responsive">
+                <table class="table table-hover table-dark align-middle text-center mb-0">
+                    <thead class="table-warning text-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Source Universe</th>
+                            <th>Destination Universe</th>
+                            <th>Capacity</th>
+                            <th>Booked</th>
+                            <th>Available</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for s in schedules %}
+                        <tr class="align-middle">
+                            <td>{{ s.date }}</td>
+                            <td>{{ s.source_universe.name }}</td>
+                            <td>{{ s.destination_universe.name }}</td>
+                            <td>{{ s.max_capacity }}</td>
+                            <td>{{ s.booked_count }}</td>
+                            <td>{{ s.available_slots }}</td>
+                            <td>
+                                <span class="badge {% if s.status == 'Available' %}bg-success{% elif s.status == 'Booked' %}bg-primary{% else %}bg-danger{% endif %} fw-semibold">
+                                    {{ s.status }}
+                                </span>
+                            </td>
+                            <td class="d-flex justify-content-center gap-1">
+                                <a href="{% url 'scheduler_update' s.pk %}" class="btn btn-info btn-sm fw-bold">Edit</a>
+                                <a href="{% url 'scheduler_delete' s.pk %}" class="btn btn-danger btn-sm fw-bold">Delete</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-warning fw-bold py-3">No schedules found.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+/* Starry night background */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: #0d1117;
+    overflow: hidden;
+}
+
+/* Card hover */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1.5rem rgba(255, 255, 255, 0.2);
+    transition: 0.3s ease;
+}
+
+/* Table row hover */
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Star layers */
+.starry-night::before, .starry-night::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+}
+
+/* Big stars */
+.starry-night::before {
+    box-shadow:
+        20px 30px #fff, 50px 80px #fff, 120px 150px #fff, 200px 220px #fff,
+        300px 180px #fff, 400px 60px #fff, 500px 300px #fff, 600px 120px #fff;
+    animation: twinkle 4s infinite alternate;
+}
+
+/* Tiny stars */
+.starry-night::after {
+    box-shadow:
+        10px 15px #fff, 40px 60px #fff, 70px 90px #fff, 150px 130px #fff,
+        180px 50px #fff, 250px 200px #fff, 300px 150px #fff, 350px 75px #fff;
+    animation: twinkle2 6s infinite alternate;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 0.3; transform: scale(0.8); }
+}
+
+@keyframes twinkle2 {
+    0% { opacity: 0.2; transform: scale(0.7); }
+    50% { opacity: 0.8; transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.7); }
+}
+
+/* Glow style for form inputs and select placeholders */
+.glow-input {
+    border-radius: 0.5rem;
+    background-color: #1c1c1c !important;
+    border: 1px solid #444 !important;
+    color: #f8f9fa !important;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+    transition: 0.3s ease;
+}
+.glow-input:focus {
+    outline: none;
+    border-color: #ffc107 !important;
+    box-shadow: 0 0 12px #ffc107;
+}
+
+/* Placeholder color */
+.glow-input::placeholder {
+    color: #ffc107 !important;
+    opacity: 1 !important;
+}
+</style>
 {% endblock %}

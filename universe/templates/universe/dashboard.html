@@ -1,57 +1,140 @@
 {% extends "universe/base.html" %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card p-3 text-center">
-            <h5>Safe Universes</h5>
-            <h3 class="status-Safe">{{ safe_universes }}</h3>
+<div class="position-relative min-vh-100" style="background-color: #0d1117; overflow: hidden;">
+
+    <!-- Stars container -->
+    <div id="stars"></div>
+
+    <div class="container py-5 position-relative" style="z-index: 1;">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-warning fw-bold">🌌 Universe Dashboard</h2>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-warning fw-bold">Back to Dashboard</a>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-3 text-center">
-            <h5>Destroyed Universes</h5>
-            <h3 class="status-Destroyed">{{ destroyed_universes }}</h3>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card p-3 text-center hover-card bg-dark text-light">
+                    <h5>Safe Universes</h5>
+                    <h3 class="status-Safe">{{ safe_universes }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 text-center hover-card bg-dark text-light">
+                    <h5>Destroyed Universes</h5>
+                    <h3 class="status-Destroyed">{{ destroyed_universes }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 text-center hover-card bg-dark text-light">
+                    <h5>High Danger</h5>
+                    <h3 class="danger-High">{{ high_danger_universes }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 text-center hover-card bg-dark text-light">
+                    <h5>Travel Safe</h5>
+                    <h3 class="status-Safe">{{ travel_safe_universes }}</h3>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-3 text-center">
-            <h5>High Danger</h5>
-            <h3 class="danger-High">{{ high_danger_universes }}</h3>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card p-3 text-center">
-            <h5>Travel Safe</h5>
-            <h3 class="status-Safe">{{ travel_safe_universes }}</h3>
+
+        <!-- Recent Universes Table -->
+        <h4 class="text-light mb-3">Recent Universes</h4>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle text-center">
+                <thead class="table-warning text-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Danger</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in recent_universes %}
+                    <tr>
+                        <td>{{ u.name }}</td>
+                        <td>{{ u.universe_type }}</td>
+                        <td class="status-{{ u.status }}">{{ u.status }}</td>
+                        <td class="danger-{{ u.get_danger_display }}">{{ u.get_danger_display }}</td>
+                        <td>
+                            <a href="{% url 'universe_update' u.universe_id %}" class="btn btn-sm btn-outline-light"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'universe_delete' u.universe_id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-warning fw-bold">No universes found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<h4>Recent Universes</h4>
-<table class="table table-dark table-hover">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Danger</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for u in recent_universes %}
-        <tr>
-            <td>{{ u.name }}</td>
-            <td>{{ u.universe_type }}</td>
-            <td class="status-{{ u.status }}">{{ u.status }}</td>
-            <td class="danger-{{ u.get_danger_display }}">{{ u.get_danger_display }}</td>
-            <td>
-                <a href="{% url 'universe_update' u.universe_id %}" class="btn btn-sm btn-outline-light"><i class="fas fa-edit"></i></a>
-                <a href="{% url 'universe_delete' u.universe_id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<style>
+/* Hoverable cards */
+.hover-card {
+    border-radius: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 2rem rgba(255, 215, 0, 0.3);
+}
+
+/* Table row hover */
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Status and danger colors */
+.status-Safe { color: #4caf50; font-weight: bold; }
+.status-Destroyed { color: #f44336; font-weight: bold; }
+.danger-High { color: #ff9800; font-weight: bold; }
+
+/* Stars */
+#stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.7;
+    animation: twinkle linear infinite alternate;
+}
+@keyframes twinkle {
+    0% { opacity: 0.3; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.3; transform: scale(0.5); }
+}
+</style>
+
+<script>
+const starCount = 150;
+const starsContainer = document.getElementById('stars');
+
+for(let i = 0; i < starCount; i++){
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 2 + 1;
+    star.style.width = star.style.height = size + 'px';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.animationDuration = (Math.random() * 3 + 1) + 's';
+    star.style.opacity = Math.random() * 0.8 + 0.2;
+    starsContainer.appendChild(star);
+}
+</script>
 {% endblock %}

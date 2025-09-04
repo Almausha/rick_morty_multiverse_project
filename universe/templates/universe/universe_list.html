@@ -1,37 +1,132 @@
 {% extends "universe/base.html" %}
 
 {% block content %}
-<h3>All Universes</h3>
-<form method="get" class="row g-2 mb-3">
-    {{ form.as_p }}
-    <div class="col-auto">
-        <button class="btn btn-portal">Filter/Search</button>
-    </div>
-</form>
+<!-- Starry background container -->
+<div class="position-relative min-vh-100" style="background-color: #0d1117; overflow: hidden;">
 
-<table class="table table-dark table-hover">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Danger</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for u in universes %}
-        <tr>
-            <td>{{ u.name }}</td>
-            <td>{{ u.universe_type }}</td>
-            <td class="status-{{ u.status }}">{{ u.status }}</td>
-            <td class="danger-{{ u.get_danger_display }}">{{ u.get_danger_display }}</td>
-            <td>
-                <a href="{% url 'universe_update' u.universe_id %}" class="btn btn-sm btn-outline-light"><i class="fas fa-edit"></i></a>
-                <a href="{% url 'universe_delete' u.universe_id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <!-- Stars container -->
+    <div id="stars"></div>
+
+    <div class="container py-5 position-relative" style="z-index: 1;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-warning">🌌 All Universes</h3>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-portal">Back to Dashboard</a>
+        </div>
+
+        <!-- Filter/Search Form -->
+        <form method="get" class="row g-2 mb-3">
+            {{ form.as_p }}
+            <div class="col-auto">
+                <button class="btn btn-portal">Filter/Search</button>
+            </div>
+        </form>
+
+        <!-- Universes Table -->
+        <div class="table-responsive">
+            <table class="table table-dark table-hover text-center align-middle">
+                <thead class="table-warning text-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Danger</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in universes %}
+                    <tr>
+                        <td>{{ u.name }}</td>
+                        <td>{{ u.universe_type }}</td>
+                        <td class="status-{{ u.status }}">{{ u.status }}</td>
+                        <td class="danger-{{ u.get_danger_display }}">{{ u.get_danger_display }}</td>
+                        <td>
+                            <a href="{% url 'universe_update' u.universe_id %}" class="btn btn-sm btn-outline-light"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'universe_delete' u.universe_id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No universes found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Starry background CSS -->
+<style>
+#stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: twinkle 2s infinite alternate;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.3; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.3; transform: scale(0.5); }
+}
+
+/* Filter form placeholders - golden and glow */
+input::placeholder,
+select option:first-child {
+    color: #FFD700;
+    opacity: 1;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+}
+
+/* Inputs & selects styling */
+input, select {
+    background-color: #1c1c1c !important;
+    color: #f8f9fa !important;
+    border: 1px solid #444 !important;
+    border-radius: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.95rem;
+    transition: 0.2s ease;
+}
+input:focus, select:focus {
+    box-shadow: 0 0 8px #FFD700;
+    outline: none;
+}
+
+/* Table hover highlight */
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 215, 0, 0.1);
+}
+</style>
+
+<!-- Generate stars dynamically -->
+<script>
+const starCount = 100;
+const starsContainer = document.getElementById('stars');
+
+for(let i = 0; i < starCount; i++){
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.width = star.style.height = Math.random() * 2 + 1 + 'px';
+    star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+    starsContainer.appendChild(star);
+}
+</script>
 {% endblock %}

@@ -1,54 +1,108 @@
 {% extends "universe/base.html" %}
 {% block content %}
-<div class="container mt-5">
-    <h2 class="text-warning fw-bold mb-4">✨ Your Wishlist</h2>
+<div class="starry-night">
+    <!-- Stars -->
+    <div class="stars"></div>
 
-    {% if wishlist %}
-    <div class="table-responsive shadow-sm rounded">
-        <table class="table table-dark table-striped align-middle text-center">
-            <thead class="table-secondary text-dark">
-                <tr>
-                    <th>Source</th>
-                    <th>Destination</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in wishlist %}
-                <tr>
-                    <td>{{ item.schedule.source_universe.name }}</td>
-                    <td>{{ item.schedule.destination_universe.name }}</td>
-                    <td>{{ item.schedule.date }}</td>
-                    <td class="d-flex justify-content-center gap-2">
-                        <a href="{% url 'user_book_schedule' item.schedule.travel_id %}" class="btn btn-success btn-sm fw-bold">Book</a>
-                        <a href="{% url 'user_remove_from_wishlist' item.id %}" class="btn btn-danger btn-sm fw-bold">Remove</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="text-center mt-5 p-4 bg-dark rounded shadow-sm">
-        <h4 class="text-warning fw-bold">Your wishlist is empty</h4>
-        <p class="text-light">
-            Add schedules from the <span class="text-info fw-bold">Booking Scheduler</span> to start planning your adventures!
-        </p>
-        <a href="{% url 'user_booking_scheduler' %}" class="btn btn-info btn-lg fw-bold mt-3">
-            Go to Booking Scheduler
-        </a>
-    </div>
-    {% endif %}
+    <div class="container mt-5 position-relative" style="z-index: 1;">
+        <h2 class="text-warning fw-bold mb-4">✨ Your Wishlist</h2>
 
-    <div class="mt-4">
-        <a href="{% url 'user_dashboard' %}" class="btn btn-warning btn-lg fw-bold">⬅ Back to Dashboard</a>
+        {% if wishlist %}
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-dark table-striped align-middle text-center glowing-table">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in wishlist %}
+                    <tr>
+                        <td>{{ item.schedule.source_universe.name }}</td>
+                        <td>{{ item.schedule.destination_universe.name }}</td>
+                        <td>{{ item.schedule.date }}</td>
+                        <td class="d-flex justify-content-center gap-2">
+                            <a href="{% url 'user_book_schedule' item.schedule.travel_id %}" class="btn btn-success btn-sm fw-bold">Book</a>
+                            <a href="{% url 'user_remove_from_wishlist' item.id %}" class="btn btn-danger btn-sm fw-bold">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center mt-5 p-4 bg-dark rounded shadow-sm glowing-card">
+            <h4 class="text-warning fw-bold">Your wishlist is empty</h4>
+            <p class="text-light">
+                Add schedules from the <span class="text-info fw-bold">Booking Scheduler</span> to start planning your adventures!
+            </p>
+            <a href="{% url 'user_booking_scheduler' %}" class="btn btn-info btn-lg fw-bold mt-3">
+                Go to Booking Scheduler
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{% url 'user_dashboard' %}" class="btn btn-warning btn-lg fw-bold">⬅ Back to Dashboard</a>
+        </div>
     </div>
 </div>
 
 <style>
+/* Starry night effect */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: #0d1117;
+    overflow: hidden;
+}
+
+.stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.stars::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: white;
+    box-shadow:
+        10px 20px #fff, 50px 60px #fff, 80px 150px #fff, 120px 90px #fff,
+        150px 200px #fff, 200px 30px #fff, 250px 180px #fff, 300px 120px #fff,
+        350px 220px #fff, 400px 80px #fff, 450px 150px #fff, 500px 50px #fff;
+    animation: twinkle 3s infinite alternate;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(0.6); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.6); }
+}
+
+/* Table and card enhancements */
+.glowing-table th, .glowing-table td {
+    color: #f8f9fa !important; /* make text visible */
+}
+
 .table-striped>tbody>tr:nth-of-type(odd) {
-    background-color: rgba(255,255,255,0.05);
+    background-color: rgba(255,255,255,0.05) !important;
+}
+.table-striped>tbody>tr:nth-of-type(even) {
+    background-color: rgba(255,255,255,0.08) !important;
+}
+
+.glowing-card {
+    border: 1px solid rgba(255, 221, 0, 0.2);
+    box-shadow: 0 0 15px rgba(255, 221, 0, 0.2);
 }
 </style>
 {% endblock %}

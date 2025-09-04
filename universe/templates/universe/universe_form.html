@@ -1,59 +1,181 @@
 {% extends "universe/base.html" %}
+{% load widget_tweaks %}
 
 {% block content %}
-<h3>{{ form.instance.pk|yesno:"Update Universe,Add New Universe" }}</h3>
+<div class="starry-night">
+    <div class="container py-5 position-relative" style="z-index: 2;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-warning fw-bold">
+                {% if form.instance.pk %}🌌 Update Universe{% else %}🚀 Add New Universe{% endif %}
+            </h3>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-warning fw-bold">Back to Dashboard</a>
+        </div>
 
-<form method="post" class="row g-3">
-    {% csrf_token %}
+        <div class="card p-4 hover-card">
+            <form method="post" class="row g-3">
+                {% csrf_token %}
 
-    <div class="col-md-6">
-        {{ form.name.label_tag }}
-        {{ form.name }}
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.name.label }}</label>
+                    {{ form.name|add_class:"form-control form-control-sm rounded-pill text-light shadow-sm"|attr:"placeholder:Enter universe name" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.universe_type.label }}</label>
+                    {{ form.universe_type|add_class:"form-select form-select-sm rounded-pill text-light shadow-sm"|attr:"placeholder:Select universe type" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.visit_date.label }}</label>
+                    {{ form.visit_date|add_class:"form-control form-control-sm rounded-pill text-light shadow-sm"|attr:"placeholder:YYYY-MM-DD" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.destroyed_date.label }}</label>
+                    {{ form.destroyed_date|add_class:"form-control form-control-sm rounded-pill text-light shadow-sm"|attr:"placeholder:YYYY-MM-DD or leave empty" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.status.label }}</label>
+                    {{ form.status|add_class:"form-select form-select-sm rounded-pill text-light shadow-sm"|attr:"placeholder:Select status" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.danger_level.label }}</label>
+                    {{ form.danger_level|add_class:"form-select form-select-sm rounded-pill text-light shadow-sm"|attr:"placeholder:Select danger level" }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">{{ form.visited_intergalactic_beings.label }}</label>
+                    {{ form.visited_intergalactic_beings|add_class:"form-control form-control-sm rounded-3 text-light shadow-sm"|attr:"placeholder:Enter visited beings" }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {{ form.description|add_class:"form-control form-control-sm rounded-3 text-light shadow-sm"|attr:"placeholder:Enter description" }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.admin.label }}</label>
+                    {{ form.admin|add_class:"form-select form-select-sm rounded-pill text-light shadow-sm"|attr:"placeholder:Select admin" }}
+                </div>
+
+                <div class="col-12 mt-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-gold flex-grow-1">Save</button>
+                    <a href="{% url 'universe_list' %}" class="btn btn-secondary flex-grow-1">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
 
-    <div class="col-md-6">
-        {{ form.universe_type.label_tag }}
-        {{ form.universe_type }}
-    </div>
+<style>
+/* Starry night background */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #0d1117, #1a1a2e);
+    overflow: hidden;
+}
 
-    <div class="col-md-6">
-        {{ form.visit_date.label_tag }}
-        {{ form.visit_date }}
-    </div>
+/* Stars */
+.stars::after {
+    content: '';
+    position: absolute;
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: white;
+    box-shadow:
+        20px 40px #fff, 60px 80px #fff, 100px 120px #fff, 140px 60px #fff,
+        180px 160px #fff, 220px 20px #fff, 260px 180px #fff, 300px 120px #fff,
+        340px 220px #fff, 380px 60px #fff, 420px 140px #fff, 460px 100px #fff;
+    animation: twinkle 4s infinite alternate;
+}
 
-    <div class="col-md-6">
-        {{ form.destroyed_date.label_tag }}
-        {{ form.destroyed_date }}
-    </div>
+@keyframes twinkle {
+    0% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 0.9; transform: scale(1.1); }
+    100% { opacity: 0.3; transform: scale(0.8); }
+}
 
-    <div class="col-md-6">
-        {{ form.status.label_tag }}
-        {{ form.status }}
-    </div>
+/* Card */
+.hover-card {
+    background: rgba(15, 15, 20, 0.95);
+    border-radius: 1rem;
+    padding: 2rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+}
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(255, 215, 0, 0.3);
+}
 
-    <div class="col-md-6">
-        {{ form.danger_level.label_tag }}
-        {{ form.danger_level }}
-    </div>
+/* Form labels */
+.form-label {
+    font-size: 0.95rem;
+    color: #FFD700;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
 
-    <div class="col-12">
-        {{ form.visited_intergalactic_beings.label_tag }}
-        {{ form.visited_intergalactic_beings }}
-    </div>
+/* Inputs & selects */
+input, select, textarea {
+    background-color: #1b1b1b !important;
+    border: none;
+    border-radius: 0.5rem;
+    color: #fff;
+    padding: 0.5rem 0.8rem;
+    box-shadow: 0 0 6px rgba(255, 215, 0, 0.25);
+    transition: all 0.3s ease;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+}
 
-    <div class="col-12">
-        {{ form.description.label_tag }}
-        {{ form.description }}
-    </div>
+/* Placeholder */
+input::placeholder, select::placeholder, textarea::placeholder,
+.form-select option:first-child {
+    color: #FFD700;
+    opacity: 0.8;
+}
 
-    <div class="col-md-6">
-        {{ form.admin.label_tag }}
-        {{ form.admin }}
-    </div>
+/* Buttons */
+.btn-gold {
+    background: linear-gradient(90deg, #FFD700, #FFC107);
+    color: #0d1117;
+    font-weight: 600;
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+.btn-gold:hover {
+    background: linear-gradient(90deg, #FFC107, #E6C200);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+}
 
-    <div class="col-12 mt-3">
-        <button class="btn btn-portal">Save</button>
-        <a href="{% url 'universe_list' %}" class="btn btn-secondary">Cancel</a>
-    </div>
-</form>
+/* Smaller font for inputs */
+.form-control, .form-select, textarea {
+    font-size: 0.92rem;
+}
+</style>
+
+<!-- Generate stars dynamically -->
+<script>
+const starCount = 100;
+const starsContainer = document.createElement('div');
+starsContainer.className = 'stars';
+document.querySelector('.starry-night').appendChild(starsContainer);
+
+for(let i=0;i<starCount;i++){
+    const star = document.createElement('div');
+    star.className='star';
+    star.style.top=Math.random()*100+'%';
+    star.style.left=Math.random()*100+'%';
+    star.style.width=star.style.height=(Math.random()*2+1)+'px';
+    star.style.animationDuration=(Math.random()*2+1)+'s';
+    starsContainer.appendChild(star);
+}
+</script>
 {% endblock %}

@@ -1,55 +1,87 @@
 {% extends "universe/base.html" %}
 {% block content %}
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-        <h2 class="text-white mb-2 fw-bold">Order #{{ order.order_id }}</h2>
-        <div class="d-flex gap-2 flex-wrap">
-            <span class="badge bg-warning text-dark fw-bold fs-5 py-2 px-3">Status: {{ order.status|title }}</span>
-            <span class="badge bg-success fw-bold fs-5 py-2 px-3">Total: ${{ order.total }}</span>
-        </div>
-    </div>
+<div class="starry-night">
+    <div class="stars"></div>
 
-    <h3 class="text-white mb-3">Items in this Order</h3>
-    {% if order.items.exists %}
-    <div class="row g-3">
-        {% for item in order.items.all %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card bg-dark text-white shadow-sm h-100 p-3 border-light">
-                <div class="placeholder-img rounded mb-3"></div>
-                <h5 class="card-title fw-bold">{{ item.artefact.name }}</h5>
-                <p class="mb-1"><strong>Price:</strong> ${{ item.price }}</p>
-                <p class="mb-1"><strong>Quantity:</strong> {{ item.quantity }}</p>
-                <p class="mb-0"><strong>Subtotal:</strong> ${{ item.subtotal }}</p>
+    <div class="container mt-5 position-relative" style="z-index: 1;">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <h2 class="text-warning mb-2 fw-bold">Order #{{ order.order_id }}</h2>
+            <div class="d-flex gap-2 flex-wrap">
+                <span class="badge bg-success fw-bold fs-5 py-2 px-3">Total: ${{ order.total }}</span>
+                <span class="badge bg-warning text-dark fw-bold fs-5 py-2 px-3">Status: {{ order.status|title }}</span>
             </div>
         </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="text-center mt-5">
-        <div class="empty-order-placeholder mb-3"></div>
-        <a href="{% url 'marketplace_list' %}" class="btn btn-warning btn-lg">Go to Marketplace</a>
-    </div>
-    {% endif %}
 
-    <div class="mt-4 text-center">
-        <a href="{% url 'user_dashboard' %}" class="btn btn-secondary btn-lg">Back to Dashboard</a>
+        <h3 class="text-warning mb-3">Items in this Order</h3>
+        {% if order.items.exists %}
+        <div class="row g-3">
+            {% for item in order.items.all %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card bg-dark text-white shadow-sm h-100 p-3 border-light">
+                    <div class="placeholder-img rounded mb-3"></div>
+                    <h5 class="card-title fw-bold">{{ item.artefact.name }}</h5>
+                    <p class="mb-1"><strong>Price:</strong> ${{ item.price }}</p>
+                    <p class="mb-1"><strong>Quantity:</strong> {{ item.quantity }}</p>
+                    <p class="mb-0"><strong>Subtotal:</strong> ${{ item.subtotal }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center mt-5">
+            <div class="empty-order-placeholder mb-3"></div>
+            <a href="{% url 'marketplace_list' %}" class="btn btn-warning btn-lg">Go to Marketplace</a>
+        </div>
+        {% endif %}
+
+        <div class="mt-4 text-center">
+            <a href="{% url 'user_dashboard' %}" class="btn btn-secondary btn-lg">Back to Dashboard</a>
+        </div>
     </div>
 </div>
 
 <style>
-.placeholder-img {
+/* Starry night background */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: #0d1117;
+    overflow: hidden;
+}
+.stars {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 150px;
+    height: 100%;
+}
+.stars::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: white;
+    box-shadow:
+        10px 20px #fff, 50px 60px #fff, 80px 150px #fff, 120px 90px #fff,
+        150px 200px #fff, 200px 30px #fff, 250px 180px #fff, 300px 120px #fff,
+        350px 220px #fff, 400px 80px #fff, 450px 150px #fff, 500px 50px #fff;
+    animation: twinkle 3s infinite alternate;
+}
+@keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(0.6); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.6); }
+}
+
+/* Placeholder styling */
+.placeholder-img, .empty-order-placeholder {
     background: linear-gradient(135deg, #495057, #343a40);
     border-radius: 12px;
 }
-.empty-order-placeholder {
-    width: 150px;
-    height: 150px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #495057, #343a40);
-    margin: 0 auto;
-}
+.placeholder-img { height: 150px; }
+.empty-order-placeholder { width: 150px; height: 150px; margin: 0 auto; }
+
 .card-title, p {
     color: #f8f9fa;
 }

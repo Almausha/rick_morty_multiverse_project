@@ -1,61 +1,117 @@
 {% extends "universe/base.html" %}
 {% block content %}
-<div class="container mt-5">
-    <div class="text-center mb-5">
-        <h2 class="fw-bold text-warning">🚀 Admin Dashboard</h2>
-        <p class="text-light fs-5">Welcome, <span class="text-info">{{ request.user.username }}</span></p>
-    </div>
+<!-- Full screen starry background -->
+<div class="position-relative min-vh-100" style="background-color: #0d1117; overflow: hidden;">
 
-    <!-- Quick Action Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <a href="{% url 'universe_dashboard' %}" class="text-decoration-none">
-                <div class="card shadow-sm h-100 bg-dark text-light p-4 text-center hover-card">
-                    <h5 class="text-warning fw-bold">Universe Vault</h5>
-                    <p class="text-secondary">Manage all universes and their status</p>
-                    <i class="bi bi-globe2 fs-1 text-info"></i>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a href="{% url 'journey_dashboard' %}" class="text-decoration-none">
-                <div class="card shadow-sm h-100 bg-dark text-light p-4 text-center hover-card">
-                    <h5 class="text-warning fw-bold">Journey Logs</h5>
-                    <p class="text-secondary">View and track interdimensional journeys</p>
-                    <i class="bi bi-rocket-takeoff fs-1 text-info"></i>
-                </div>
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a href="{% url 'scheduler_dashboard' %}" class="text-decoration-none">
-                <div class="card shadow-sm h-100 bg-dark text-light p-4 text-center hover-card">
-                    <h5 class="text-warning fw-bold">Travel Scheduler</h5>
-                    <p class="text-secondary">Plan and monitor universe travel schedules</p>
-                    <i class="bi bi-calendar-event fs-1 text-info"></i>
-                </div>
-            </a>
-        </div>
-    </div>
+    <!-- Starry animation -->
+    <div id="stars"></div>
 
-    <!-- Admin Info / Actions -->
-    <div class="card shadow-sm bg-dark text-light p-4 rounded-4">
-        <h5 class="text-warning fw-bold mb-3">Admin Quick Links</h5>
-        <p class="text-secondary mb-4">Manage universes, journeys, and schedules from here. Use Django Admin for advanced configurations.</p>
-        <div class="d-flex flex-wrap gap-3">
-            <a href="/admin/" class="btn btn-danger btn-lg fw-bold">Go to Django Admin</a>
-            <a href="{% url 'logout' %}" class="btn btn-secondary btn-lg fw-bold">Logout</a>
+    <!-- Dashboard Container -->
+    <div class="container py-5 position-relative" style="z-index: 1;">
+
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-gold">🚀 Admin Dashboard</h2>
+            <p class="text-cyan fs-5">Welcome, <span class="text-info">{{ request.user.username }}</span></p>
         </div>
+
+        <!-- Quick Action Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <a href="{% url 'universe_dashboard' %}" class="text-decoration-none">
+                    <div class="card h-100 bg-dark text-light p-4 text-center hover-card">
+                        <h5 class="text-gold fw-bold">Universe Vault</h5>
+                        <p class="text-cyan fw-semibold">Manage all universes and their status</p>
+                        <i class="bi bi-globe2 fs-1 text-info"></i>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'journey_dashboard' %}" class="text-decoration-none">
+                    <div class="card h-100 bg-dark text-light p-4 text-center hover-card">
+                        <h5 class="text-gold fw-bold">Journey Logs</h5>
+                        <p class="text-cyan fw-semibold">View and track interdimensional journeys</p>
+                        <i class="bi bi-rocket-takeoff fs-1 text-info"></i>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'scheduler_dashboard' %}" class="text-decoration-none">
+                    <div class="card h-100 bg-dark text-light p-4 text-center hover-card">
+                        <h5 class="text-gold fw-bold">Travel Scheduler</h5>
+                        <p class="text-cyan fw-semibold">Plan and monitor universe travel schedules</p>
+                        <i class="bi bi-calendar-event fs-1 text-info"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Admin Info / Actions -->
+        <div class="card bg-dark text-light p-4 rounded-4 hover-card">
+            <h5 class="text-gold fw-bold mb-3">Admin Quick Links</h5>
+            <p class="text-cyan mb-4">Manage universes, journeys, and schedules from here. Use Django Admin for advanced configurations.</p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="/admin/" class="btn btn-danger btn-lg fw-bold">Go to Django Admin</a>
+                <a href="{% url 'logout' %}" class="btn btn-secondary btn-lg fw-bold">Logout</a>
+            </div>
+        </div>
+
     </div>
 </div>
 
+<!-- Glow hover effect and text colors -->
 <style>
 .hover-card {
     border-radius: 1rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); /* subtle glow */
 }
 .hover-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 1rem 2rem rgba(255,255,255,0.15);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6); /* golden glow on hover */
+}
+
+/* Title & subtitle colors */
+.text-gold { color: #FFD700; text-shadow: 0 0 5px rgba(255,215,0,0.7); }
+.text-cyan { color: #00FFFF; text-shadow: 0 0 3px rgba(0,255,255,0.6); }
+
+/* Starry background */
+#stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: twinkle 2s infinite alternate;
+}
+@keyframes twinkle {
+    0% { opacity: 0.3; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.3; transform: scale(0.5); }
 }
 </style>
+
+<!-- Generate stars dynamically -->
+<script>
+const starCount = 100;
+const starsContainer = document.getElementById('stars');
+
+for(let i = 0; i < starCount; i++){
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.width = star.style.height = Math.random() * 2 + 1 + 'px';
+    star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+    starsContainer.appendChild(star);
+}
+</script>
 {% endblock %}

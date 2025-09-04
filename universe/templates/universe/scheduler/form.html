@@ -1,14 +1,116 @@
 {% extends 'universe/base.html' %}
 
 {% block content %}
-<h2>{% if form.instance.pk %}Update{% else %}Create{% endif %} Schedule</h2>
+<div class="starry-night">
+    <div class="container py-4 position-relative" style="z-index: 2;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="text-warning fw-bold">
+                {% if form.instance.pk %}Update{% else %}Create{% endif %} Schedule
+            </h2>
+            <a href="{% url 'scheduler_list' %}" class="btn btn-warning fw-bold">⬅ Back to Dashboard</a>
+        </div>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-travel mt-2">
-        <i class="fas fa-save"></i> Save
-    </button>
-    <a href="{% url 'scheduler_list' %}" class="btn btn-secondary mt-2">Cancel</a>
-</form>
+        <div class="card p-4 bg-dark text-light shadow hover-card">
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-travel">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <a href="{% url 'scheduler_list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: #0d1117;
+    overflow: hidden;
+}
+
+/* Layer 1 - big stars */
+.starry-night::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    box-shadow:
+        20px 30px #fff, 50px 80px #fff, 120px 150px #fff, 200px 220px #fff,
+        300px 180px #fff, 400px 60px #fff, 500px 300px #fff, 600px 120px #fff,
+        700px 220px #fff, 800px 180px #fff, 900px 50px #fff, 1000px 300px #fff;
+    animation: twinkle 4s infinite alternate;
+}
+
+/* Layer 2 - tiny stars */
+.starry-night::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    box-shadow:
+        10px 15px #fff, 40px 60px #fff, 70px 90px #fff, 150px 130px #fff,
+        180px 50px #fff, 250px 200px #fff, 300px 150px #fff, 350px 75px #fff,
+        400px 180px #fff, 450px 90px #fff, 500px 250px #fff, 600px 120px #fff;
+    animation: twinkle2 6s infinite alternate;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 0.3; transform: scale(0.8); }
+}
+
+@keyframes twinkle2 {
+    0% { opacity: 0.2; transform: scale(0.7); }
+    50% { opacity: 0.8; transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.7); }
+}
+
+/* Card hover */
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1.5rem rgba(255, 255, 255, 0.2);
+    transition: 0.3s ease;
+}
+
+/* Glow style for form inputs */
+input, select, textarea {
+    background-color: #1c1c1c !important;
+    border: 1px solid #444 !important;
+    border-radius: 0.5rem;
+    color: #f8f9fa !important;
+    padding: 0.375rem 0.75rem;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+    transition: 0.3s ease;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #ffc107 !important;
+    box-shadow: 0 0 12px #ffc107;
+}
+
+/* Placeholder color */
+input::placeholder, select::placeholder, textarea::placeholder {
+    color: #ffc107 !important;
+    opacity: 1 !important;
+}
+</style>
 {% endblock %}

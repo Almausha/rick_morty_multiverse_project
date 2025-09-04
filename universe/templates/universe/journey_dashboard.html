@@ -1,62 +1,142 @@
 {% extends 'universe/base.html' %}
 
 {% block content %}
-<div class="card p-4">
-    <h3>Journey Dashboard</h3>
+<div class="starry-night">
+    <!-- Stars layer -->
+    <div class="stars"></div>
 
-    <!-- Search Form -->
-    <form method="GET" class="row g-3 mb-3">
-        <div class="col-md-4">
-            <input type="text" name="username" class="form-control" placeholder="Search Username" value="{{ request.GET.username }}">
+    <div class="container py-4 position-relative" style="z-index: 1;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="text-warning fw-bold">Journey Dashboard</h3>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-warning fw-bold">⬅ Back to Dashboard</a>
         </div>
-        <div class="col-md-3">
-            <input type="number" name="points" placeholder="Points" class="form-control" value="{{ request.GET.points }}">
-        </div>
-        <div class="col-md-3">
-            <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
-        </div>
-        <div class="col-md-2">
-            <button class="btn btn-portal w-100">Search</button>
-        </div>
-    </form>
 
-    <!-- Stats -->
-    {% if most_visited %}
-        <p><strong>Most visited universe:</strong> {{ most_visited.universe__name }} ({{ most_visited.visits }} visits)</p>
-    {% endif %}
-    {% if points_summary %}
-        <p><strong>Top points earned by:</strong> {{ points_summary.user__username }} ({{ points_summary.total_points }} points)</p>
-    {% endif %}
+        <div class="card p-4 bg-dark text-light shadow hover-card">
+            <!-- Search Form -->
+            <form method="GET" class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <input type="text" name="username" class="form-control glow-input" placeholder="Search Username" value="{{ request.GET.username }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="number" name="points" placeholder="Points" class="form-control glow-input" value="{{ request.GET.points }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="date" class="form-control glow-input" value="{{ request.GET.date }}">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-portal w-100 fw-bold">Search</button>
+                </div>
+            </form>
 
-    <!-- Last 5 Journeys -->
-    <h5>Last 5 Journeys</h5>
-    <table class="table table-dark table-striped mt-2">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Universe</th>
-                <th>Date</th>
-                <th>Success</th>
-                <th>Points</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for log in logs %}
-            <tr>
-                <td>{{ log.user.username }}</td>
-                <td>{{ log.universe.name }}</td>
-                <td>{{ log.travel_date|date:"Y-m-d H:i" }}</td>
-                <td>{{ log.success|yesno:"Yes,No" }}</td>
-                <td>{{ log.points_awarded }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5">No journeys found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            <!-- Stats -->
+            {% if most_visited %}
+                <p><span class="badge bg-success">Most visited universe:</span> {{ most_visited.universe__name }} ({{ most_visited.visits }} visits)</p>
+            {% endif %}
+            {% if points_summary %}
+                <p><span class="badge bg-info text-dark">Top points earned by:</span> {{ points_summary.user__username }} ({{ points_summary.total_points }} points)</p>
+            {% endif %}
 
-    <a href="{% url 'full_journey_list' %}" class="btn btn-secondary mt-3">View Full Journey List</a>
+            <!-- Last 5 Journeys -->
+            <h5 class="mt-4">Last 5 Journeys</h5>
+            <table class="table table-dark table-striped mt-2 text-center align-middle">
+                <thead class="table-secondary text-dark">
+                    <tr>
+                        <th>User</th>
+                        <th>Universe</th>
+                        <th>Date</th>
+                        <th>Success</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.user.username }}</td>
+                        <td>{{ log.universe.name }}</td>
+                        <td>{{ log.travel_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ log.success|yesno:"✅,❌" }}</td>
+                        <td>{{ log.points_awarded }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-warning fw-bold">No journeys found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <a href="{% url 'full_journey_list' %}" class="btn btn-secondary mt-3 fw-bold">View Full Journey List</a>
+        </div>
+    </div>
 </div>
+
+<style>
+/* Starry night background */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #0d1117 0%, #12161e 100%);
+    overflow: hidden;
+}
+
+/* Stars layer */
+.stars {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+}
+
+.stars::after {
+    content: '';
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    border-radius: 50%;
+    box-shadow:
+        50px 100px #fff, 150px 200px #fff, 300px 150px #fff,
+        400px 250px #fff, 600px 50px #fff, 700px 300px #fff,
+        900px 120px #fff, 1100px 200px #fff, 1300px 180px #fff,
+        1500px 100px #fff, 1700px 220px #fff, 1900px 50px #fff,
+        2100px 300px #fff, 2300px 150px #fff, 2500px 180px #fff,
+        2700px 250px #fff, 2900px 100px #fff, 3100px 220px #fff;
+    animation: twinkle 5s infinite alternate;
+    opacity: 0.9;
+}
+
+/* Glow animation for stars */
+@keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(0.4); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.4); }
+}
+
+/* Card hover */
+.hover-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 0.5rem 1.5rem rgba(255, 255, 255, 0.2);
+    transition: 0.3s ease;
+}
+
+/* Input glow effect */
+.glow-input {
+    border-radius: 0.5rem;
+    background-color: #1c1c1c !important;
+    border: 1px solid #444;
+    color: #f8f9fa;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    transition: 0.3s ease;
+}
+.glow-input:focus {
+    outline: none;
+    border-color: #ffc107;
+    box-shadow: 0 0 10px #ffc107;
+}
+
+/* Placeholder visibility */
+.glow-input::placeholder {
+    color: #ffc107 !important;  /* golden color */
+    opacity: 1;
+}
+</style>
 {% endblock %}

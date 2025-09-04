@@ -1,56 +1,125 @@
 {% extends "universe/base.html" %}
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4 text-light">Transaction History</h2>
+<div class="starry-night">
+    <div class="stars"></div>
 
-    <!-- Search & Filter -->
-    <form method="get" class="row g-3 mb-4">
-        <div class="col-md-4">
-            <input type="text" name="q" class="form-control" placeholder="Search by artefact name" value="{{ request.GET.q }}">
-        </div>
-        <div class="col-md-3">
-            <input type="date" name="from" class="form-control" value="{{ request.GET.from }}">
-        </div>
-        <div class="col-md-3">
-            <input type="date" name="to" class="form-control" value="{{ request.GET.to }}">
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">Filter</button>
-        </div>
-    </form>
+    <div class="container mt-5 position-relative" style="z-index: 1;">
+        <h2 class="mb-4 text-warning fw-bold text-center">Transaction History 📜</h2>
 
-    <!-- Transaction List -->
-    {% if records %}
-    <div class="table-responsive">
-        <table class="table table-dark table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>Artefact</th>
-                    <th>Type</th>
-                    <th>Price</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for tx in records %}
-                <tr>
-                    <td><strong>{{ tx.artefact.name }}</strong></td>
-                    <td>{{ tx.tx_type|title }}</td>
-                    <td class="text-success">${{ tx.price }}</td>
-                    <td>{{ tx.created_at|date:"M d, Y H:i" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="alert alert-secondary text-center">
-        No transactions found for the selected filters.
-    </div>
-    {% endif %}
+        <!-- Search & Filter -->
+        <form method="get" class="row g-3 mb-4 justify-content-center">
+            <div class="col-md-4">
+                <input type="text" name="q" class="form-control bg-dark text-light border border-secondary" placeholder="Search by artefact name" value="{{ request.GET.q }}">
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="from" class="form-control bg-dark text-light border border-secondary" placeholder="From date" value="{{ request.GET.from }}">
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="to" class="form-control bg-dark text-light border border-secondary" placeholder="To date" value="{{ request.GET.to }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-warning w-100 fw-bold">Filter</button>
+            </div>
+        </form>
 
-    <div class="mt-4">
-        <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        <!-- Transaction List -->
+        {% if records %}
+        <div class="table-responsive shadow-sm rounded glowing-card">
+            <table class="table table-dark table-striped table-hover text-center glowing-table align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-warning">Artefact</th>
+                        <th class="text-warning">Type</th>
+                        <th class="text-warning">Price</th>
+                        <th class="text-warning">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in records %}
+                    <tr>
+                        <td class="text-light"><strong>{{ tx.artefact.name }}</strong></td>
+                        <td class="text-light">{{ tx.tx_type|title }}</td>
+                        <td class="text-success">${{ tx.price }}</td>
+                        <td class="text-light">{{ tx.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-secondary text-center">
+            No transactions found for the selected filters.
+        </div>
+        {% endif %}
+
+        <div class="mt-4 text-center">
+            <a href="{% url 'user_dashboard' %}" class="btn btn-warning btn-lg fw-bold">⬅ Back to Dashboard</a>
+        </div>
     </div>
 </div>
+
+<style>
+/* Starry night effect */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: #0d1117;
+    overflow: hidden;
+}
+
+.stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+.stars::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: white;
+    box-shadow:
+        10px 20px #fff, 50px 60px #fff, 80px 150px #fff, 120px 90px #fff,
+        150px 200px #fff, 200px 30px #fff, 250px 180px #fff, 300px 120px #fff,
+        350px 220px #fff, 400px 80px #fff, 450px 150px #fff, 500px 50px #fff;
+    animation: twinkle 3s infinite alternate;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(0.6); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.6); }
+}
+
+/* Table enhancements */
+.glowing-table th, .glowing-table td {
+    color: #fff !important; /* force all table text visible */
+}
+.glowing-table th.text-warning {
+    color: #ffd700 !important; /* bright gold for headers */
+    text-shadow: 0 0 2px #ffd700;
+}
+.glowing-card {
+    border: 1px solid rgba(255, 221, 0, 0.2);
+    box-shadow: 0 0 15px rgba(255, 221, 0, 0.2);
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Form input adjustments */
+.form-control {
+    border-radius: 0.5rem !important;
+    color: #fff;
+}
+.form-control::placeholder {
+    color: #bbb;
+    opacity: 1;
+}
+</style>
 {% endblock %}

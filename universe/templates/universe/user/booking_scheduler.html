@@ -1,81 +1,169 @@
-
-
-
-
-
-
 {% extends "universe/base.html" %}
 
 {% block content %}
-<h2>Booking Scheduler</h2>
+<div class="starry-night">
+    <!-- Stars -->
+    <div class="stars"></div>
 
-<form method="get" class="row g-2 mb-3">
-    <div class="col">
-        <select name="source" class="form-select">
-            <option value="">Source Universe</option>
-            {% for u in universes %}
-            <option value="{{ u.universe_id }}" {% if u.universe_id|stringformat:"s" == source_selected %}selected{% endif %}>
-                {{ u.name }}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col">
-        <select name="destination" class="form-select">
-            <option value="">Destination Universe</option>
-            {% for u in universes %}
-            <option value="{{ u.universe_id }}" {% if u.universe_id|stringformat:"s" == destination_selected %}selected{% endif %}>
-                {{ u.name }}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col"><input type="date" name="date" value="{{ date_selected }}" class="form-control"></div>
-    <div class="col"><button class="btn btn-travel">Search</button></div>
-</form>
+    <div class="container py-5 position-relative" style="z-index: 1;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-warning">🌌 Booking Scheduler</h2>
+            <a href="{% url 'user_dashboard' %}" class="btn btn-portal">Back to Dashboard</a>
+        </div>
 
-{% if upcoming_booking %}
-<div class="alert alert-info">
-    <strong>Upcoming Booking:</strong>
-    {{ upcoming_booking.schedule.source_universe.name }} →
-    {{ upcoming_booking.schedule.destination_universe.name }} 
-    on {{ upcoming_booking.schedule.date|date:"M d, Y" }}
+        <!-- Filter/Search Form -->
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <select name="source" class="form-select glowing-input">
+                    <option value="">Source Universe</option>
+                    {% for u in universes %}
+                    <option value="{{ u.universe_id }}" {% if u.universe_id|stringformat:"s" == source_selected %}selected{% endif %}>
+                        {{ u.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="destination" class="form-select glowing-input">
+                    <option value="">Destination Universe</option>
+                    {% for u in universes %}
+                    <option value="{{ u.universe_id }}" {% if u.universe_id|stringformat:"s" == destination_selected %}selected{% endif %}>
+                        {{ u.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="date" name="date" value="{{ date_selected }}" class="form-control glowing-input">
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-travel w-100">Search</button>
+            </div>
+        </form>
+
+        {% if upcoming_booking %}
+        <div class="alert alert-info glowing-alert">
+            <strong>Upcoming Booking:</strong>
+            {{ upcoming_booking.schedule.source_universe.name }} →
+            {{ upcoming_booking.schedule.destination_universe.name }}
+            on {{ upcoming_booking.schedule.date|date:"M d, Y" }}
+        </div>
+        {% endif %}
+
+        <!-- Booking Table -->
+        <div class="table-responsive">
+            <table class="table table-dark table-striped table-hover glowing-table">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Date</th>
+                        <th>Available Slots</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in schedules %}
+                    <tr>
+                        <td>{{ s.source_universe.name }}</td>
+                        <td>{{ s.destination_universe.name }}</td>
+                        <td>{{ s.date|date:"M d, Y" }}</td>
+                        <td>{{ s.available_slots }}</td>
+                        <td>
+                            {% if s.already_booked %}
+                                <span class="badge bg-warning">Already Booked</span>
+                            {% elif s.same_date_booked %}
+                                <span class="badge bg-warning">Already Booked on Same Date</span>
+                            {% else %}
+                                <a href="{% url 'user_book_schedule' s.travel_id %}" class="btn btn-travel btn-sm">Book</a>
+                                <a href="{% url 'user_add_to_wishlist' s.travel_id %}" class="btn btn-portal btn-sm">Wishlist</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No schedules found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-{% endif %}
 
-<table class="table table-dark table-striped">
-    <thead>
-        <tr>
-            <th>Source</th>
-            <th>Destination</th>
-            <th>Date</th>
-            <th>Available Slots</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for s in schedules %}
-        <tr>
-            <td>{{ s.source_universe.name }}</td>
-            <td>{{ s.destination_universe.name }}</td>
-            <td>{{ s.date|date:"M d, Y" }}</td>
-            <td>{{ s.available_slots }}</td>
-            <td>
-                {% if s.already_booked %}
-                    <span class="badge bg-warning">Already Booked</span>
-                {% elif s.same_date_booked %}
-                    <span class="badge bg-warning">Already Booked on Same Date</span>
-                {% else %}
-                    <a href="{% url 'user_book_schedule' s.travel_id %}" class="btn btn-travel btn-sm">Book</a>
-                    <a href="{% url 'user_add_to_wishlist' s.travel_id %}" class="btn btn-portal btn-sm">Wishlist</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5">No schedules found.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<style>
+/* Starry night effect */
+.starry-night {
+    position: relative;
+    min-height: 100vh;
+    background: #0d1117;
+    overflow: hidden;
+}
+
+.stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+.stars::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: white;
+    box-shadow:
+        10px 20px #fff, 50px 60px #fff, 80px 150px #fff, 120px 90px #fff,
+        150px 200px #fff, 200px 30px #fff, 250px 180px #fff, 300px 120px #fff,
+        350px 220px #fff, 400px 80px #fff, 450px 150px #fff, 500px 50px #fff;
+    animation: twinkle 3s infinite alternate;
+}
+
+@keyframes twinkle {
+    0% { opacity: 0.2; transform: scale(0.6); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.2; transform: scale(0.6); }
+}
+
+/* Glowing inputs and selects */
+.glowing-input {
+    background-color: rgba(255,255,255,0.05);
+    color: #fff;
+    border: 1px solid #ffdd00;
+    text-shadow: 0 0 2px #fff;
+}
+
+.glowing-input option {
+    background-color: #0d1117;
+    color: #fff;
+}
+
+/* Glowing table */
+.glowing-table th, .glowing-table td {
+    color: #fff;
+}
+
+.glowing-alert {
+    background-color: rgba(255, 221, 0, 0.1);
+    color: #fff;
+    border: 1px solid #ffdd00;
+}
+
+/* Buttons */
+.btn-travel {
+    background: #ffdd00;
+    color: #0d1117;
+    font-weight: bold;
+}
+.btn-portal {
+    background: #00cfff;
+    color: #0d1117;
+    font-weight: bold;
+}
+</style>
+
 {% endblock %}
