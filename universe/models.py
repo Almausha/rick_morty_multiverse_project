@@ -314,4 +314,6 @@ class TransactionRecord(models.Model):
 
     class Meta:
         db_table = 'universe_transactionrecord'
-        managed = True  
+        managed = False 
+
+
