@@ -1,52 +1,154 @@
-
-
 {% extends "universe/base.html" %}
+{% load static %}
 
 {% block content %}
-<!-- Hero Section with Galaxy Background -->
-<div class="d-flex flex-column justify-content-center align-items-center" 
-     style="height: 100vh; 
-            background: url('https://wallpapercave.com/wp/wp2757874.gif') no-repeat center center/cover;
-            background-attachment: fixed;">
+<!-- Full screen starry background -->
+<div class="position-relative min-vh-100" style="background-color: #0d1117; overflow: hidden;">
 
-    <!-- Overlay card -->
-    <div class="text-center text-light p-5 rounded-4" 
-         style="background: rgba(13, 17, 23, 0.85); 
-                box-shadow: 0 0 40px #58a6ff;
-                backdrop-filter: blur(6px);">
-        
+    <!-- Starry animation -->
+    <div id="stars"></div>
+
+    <!-- Centered content (portal, Rick & Morty, title, buttons) -->
+    <div class="d-flex flex-column justify-content-center align-items-center text-center position-relative" style="height: 100vh; z-index: 1;">
+
         <!-- Title -->
-        <h1 class="display-4 mb-3 fw-bold" 
-            style="font-family: 'Orbitron', sans-serif; color: #58a6ff; text-shadow: 0 0 15px #58a6ff;">
+        <h1 class="display-3 fw-bold mb-3 subtle-glow-text">
             🌌 Welcome to the Multiverse Portal 🌌
         </h1>
-        
+
+        <!-- Rick & Morty Portal -->
+        <div class="rick-portal my-4">
+            <div class="portal-glow"></div>
+            <img src="{% static 'images/pngkey.com-rick-and-morty-png-36122.png' %}" 
+                 alt="Rick and Morty" class="rickmorty-img">
+        </div>
+
         <!-- Subtitle -->
-        <p class="lead mb-4" style="color: #c9d1d9;">
-            Choose your path and explore infinite universes!
+        <p class="lead mb-4" style="color: #c9d1d9; font-size: 1.3rem;">
+            Choose your path and explore infinite dimensions!
         </p>
 
-        <!-- Action Buttons -->
-        <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a href="{% url 'admin_login' %}" class="btn btn-danger btn-lg shadow-lg rounded-pill px-4">
-                <i class="fas fa-user-shield"></i> Admin Login
-            </a>
-            <a href="{% url 'user_login' %}" class="btn btn-primary btn-lg shadow-lg rounded-pill px-4">
-                <i class="fas fa-user"></i> User Login
-            </a>
-            <a href="{% url 'user_signup' %}" class="btn btn-success btn-lg shadow-lg rounded-pill px-4">
-                <i class="fas fa-user-plus"></i> User Sign Up
-            </a>
+        <!-- Buttons -->
+        <div class="d-flex justify-content-center gap-4 flex-wrap">
+            <a href="{% url 'admin_login' %}" class="fun-btn red-btn">Admin Login</a>
+            <a href="{% url 'user_login' %}" class="fun-btn blue-btn">User Login</a>
+            <a href="{% url 'user_signup' %}" class="fun-btn green-btn">User Sign Up</a>
         </div>
 
-        <!-- Rick & Morty style image -->
-        <div class="mt-4">
-            <img src="https://media.tenor.com/3dnbVddOZ5wAAAAd/rick-and-morty.gif" 
-                 alt="Rick and Morty Portal" 
-                 class="rounded-3 shadow-lg" 
-                 style="max-width: 280px; border: 2px solid #58a6ff;">
-        </div>
     </div>
-
 </div>
+
+<!-- Load fun Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+
+<!-- Portal, text, and buttons styles -->
+<style>
+.subtle-glow-text {
+    color: #1E90FF;                    /* Bright blue */
+    -webkit-text-stroke: 2px #00FF00;  /* Neon green border */
+    font-family: 'Orbitron', sans-serif !important; /* Fun, readable sci-fi font */
+    font-weight: 700;
+    font-size: 2.5rem;                 /* Smaller size to fit one line */
+    letter-spacing: 2px;               /* Slight spacing for readability */
+    text-shadow: none;
+}
+
+.rick-portal {
+    position: relative;
+    display: inline-block;
+    width: 360px;
+    height: 360px;
+}
+
+.portal-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, #00ff00 0%, rgba(0,255,0,0.0) 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 80px #00ff00, 0 0 120px #00ff00 inset;
+    animation: portalPulse 2s infinite alternate;
+    z-index: 1;
+}
+
+.rickmorty-img {
+    max-width: 350px;
+    display: block;
+    margin: 0 auto;
+    border-radius: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes portalPulse {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+    50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.85; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+}
+
+/* Buttons */
+.fun-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    transition: 0.3s;
+}
+
+.fun-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px currentColor;
+}
+
+.red-btn { background: #ff4757; }
+.blue-btn { background: #1e90ff; }
+.green-btn { background: #2ecc71; }
+
+/* Star animation */
+#stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 0;
+}
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: twinkle 2s infinite alternate;
+}
+@keyframes twinkle {
+    0% { opacity: 0.3; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.3; transform: scale(0.5); }
+}
+</style>
+
+<!-- Generate stars dynamically -->
+<script>
+const starCount = 100;
+const starsContainer = document.getElementById('stars');
+
+for(let i = 0; i < starCount; i++){
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.width = star.style.height = Math.random() * 2 + 1 + 'px';
+    star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+    starsContainer.appendChild(star);
+}
+</script>
 {% endblock %}
