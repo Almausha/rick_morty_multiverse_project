@@ -160,6 +160,8 @@ Hybrid approach with Django-managed tables and manually created tables using Mar
  -Open your Windows Powershell or command prompt and type:
 
    git clone https://github.com/Almausha/rick_morty_multiverse_project.git
+
+   
    cd rick_morty_multiverse_project
    
 
@@ -192,6 +194,8 @@ Hybrid approach with Django-managed tables and manually created tables using Mar
    -Open your Xampp Shell and type:
 
    -- Using MySQL client or phpMyAdmin
+   ⚠️ Keep quotes if filename has spaces/parentheses.
+   
 
   source "database_sql_dumps/rick_morty_multiverse_vault (3).sql";
 
