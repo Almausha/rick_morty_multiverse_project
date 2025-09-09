@@ -195,7 +195,9 @@ Navigate to http://127.0.0.1:8000/.
 3.Hybrid setup demonstrates Django migrations and manual SQL integration.
 
 
-necessary screenshots: ![WhatsApp Image 2025-09-06 at 20 37 18_4a06fe83](https://github.com/user-attachments/assets/171468b0-6d21-4145-b501-0d0053cb9b23)
+necessary screenshots: 
+<img width="1693" height="933" alt="image" src="https://github.com/user-attachments/assets/948f438d-75be-4f0a-921c-6c780c34d5d3" />
+
 ![WhatsApp Image 2025-09-06 at 20 27 22_f145368a](https://github.com/user-attachments/assets/958af759-3ae0-486a-9096-41e9a77fc7b2)
 ![WhatsApp Image 2025-09-06 at 20 27 41_6cc0ff73](https://github.com/user-attachments/assets/60751d6d-2021-4eca-aae7-e4b2ab9c4829)
 ![WhatsApp Image 2025-09-06 at 20 32 05_ae115fff](https://github.com/user-attachments/assets/376b9746-4796-4f6f-a20b-6b3f7a330009)
